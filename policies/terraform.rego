@@ -32,6 +32,15 @@ labelled_types := {
 # Maximum resources a single plan may destroy before requiring explicit override.
 max_destroyed := 5
 
+# Approved GCP locations. Update here when adding a new region.
+approved_locations := {"europe-west4", "eu"}
+
+# Resource types that carry a top-level location field.
+location_checked_types := {
+	"google_storage_bucket",
+	"google_kms_key_ring",
+}
+
 # --- Keyless identity: no service-account keys, ever. ---
 deny contains msg if {
 	some rc in resource_changes
@@ -84,6 +93,15 @@ deny contains msg if {
 	some key in required_labels
 	not rc.change.after.labels[key]
 	msg := sprintf("%s: missing required label %q", [rc.address, key])
+}
+
+# --- Approved regions only (data residency). ---
+deny contains msg if {
+	some rc in upserts
+	rc.type in location_checked_types
+	loc := lower(rc.change.after.location)
+	not loc in approved_locations
+	msg := sprintf("%s: location %q is not approved (allowed: %v)", [rc.address, rc.change.after.location, approved_locations])
 }
 
 # --- Destroy threshold: large teardowns must be explicit. ---

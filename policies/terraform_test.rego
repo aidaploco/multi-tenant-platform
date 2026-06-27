@@ -13,6 +13,7 @@ compliant_bucket := {
 	"change": {
 		"actions": ["create"],
 		"after": {
+			"location": "europe-west4",
 			"uniform_bucket_level_access": true,
 			"public_access_prevention": "enforced",
 			"encryption": [{"default_kms_key_name": "projects/p/locations/l/keyRings/r/cryptoKeys/gcs"}],
@@ -76,6 +77,17 @@ test_denies_kms_key_without_rotation if {
 		}},
 	}]}
 	count(d) == 1
+}
+
+test_denies_unapproved_region if {
+	bucket := json.patch(compliant_bucket, [{"op": "replace", "path": "/change/after/location", "value": "us-central1"}])
+	d := deny with input as {"resource_changes": [bucket]}
+	count(d) == 1
+}
+
+test_approved_region_passes if {
+	bucket := json.patch(compliant_bucket, [{"op": "replace", "path": "/change/after/location", "value": "EU"}])
+	count(deny) == 0 with input as {"resource_changes": [bucket]}
 }
 
 test_denies_oversized_destroy if {
