@@ -48,6 +48,31 @@ deny contains msg if {
 	msg := sprintf("%s: service-account keys are forbidden (keyless identity only)", [rc.address])
 }
 
+# IAM member types that carry a single `role` and `member`.
+iam_member_types := {
+	"google_project_iam_member",
+	"google_folder_iam_member",
+	"google_organization_iam_member",
+	"google_service_account_iam_member",
+}
+
+# --- Least-privilege: primitive roles are never granted (they are project-wide power). ---
+# (viewer is allowed — the read-only CI planner legitimately uses it; owner/editor are not.)
+deny contains msg if {
+	some rc in upserts
+	rc.type in iam_member_types
+	rc.change.after.role in {"roles/owner", "roles/editor"}
+	msg := sprintf("%s: primitive role %q is forbidden (grant least-privilege roles)", [rc.address, rc.change.after.role])
+}
+
+# --- Keyless backstop: never grant the power to mint service-account keys (D5). ---
+deny contains msg if {
+	some rc in upserts
+	rc.type in iam_member_types
+	rc.change.after.role in {"roles/iam.serviceAccountKeyAdmin", "roles/iam.serviceAccountKeyCreator"}
+	msg := sprintf("%s: granting %q is forbidden (no service-account keys, ever)", [rc.address, rc.change.after.role])
+}
+
 # --- GCS: uniform bucket-level access (no ACLs). ---
 deny contains msg if {
 	some rc in upserts

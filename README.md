@@ -27,6 +27,7 @@ module "project" {
 | `kms-tenant` | Per-tenant KMS keyring + CMEK keys with native rotation | ⏳ |
 | `gcs` | GCS bucket: CMEK-required, uniform access, private | ⏳ |
 | `observability` | Log sink + alert policies + dashboard per resource | ⏳ |
+| [`agent-identity`](modules/agent-identity) | Agent-unit archetype: runtime SA + Workload Identity binding + least-privilege IAM | ✅ |
 
 > This is an MVP reference implementation. Modules are built as a thin vertical slice that
 > demonstrates the platform's patterns end-to-end; the remaining modules from the full design

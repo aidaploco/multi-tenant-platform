@@ -90,6 +90,33 @@ test_approved_region_passes if {
 	count(deny) == 0 with input as {"resource_changes": [bucket]}
 }
 
+test_denies_primitive_role if {
+	d := deny with input as {"resource_changes": [{
+		"address": "google_project_iam_member.bad",
+		"type": "google_project_iam_member",
+		"change": {"actions": ["create"], "after": {"role": "roles/editor"}},
+	}]}
+	count(d) == 1
+}
+
+test_denies_sa_key_role_grant if {
+	d := deny with input as {"resource_changes": [{
+		"address": "module.identity.google_project_iam_member.roles[\"x\"]",
+		"type": "google_project_iam_member",
+		"change": {"actions": ["create"], "after": {"role": "roles/iam.serviceAccountKeyCreator"}},
+	}]}
+	count(d) == 1
+}
+
+# The read-only CI planner uses roles/viewer; it must NOT be denied.
+test_allows_viewer_grant if {
+	count(deny) == 0 with input as {"resource_changes": [{
+		"address": "google_project_iam_member.planner",
+		"type": "google_project_iam_member",
+		"change": {"actions": ["create"], "after": {"role": "roles/viewer"}},
+	}]}
+}
+
 test_denies_oversized_destroy if {
 	deletions := [rc |
 		some i in numbers.range(1, 6)
