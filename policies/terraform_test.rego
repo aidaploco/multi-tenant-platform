@@ -117,6 +117,23 @@ test_allows_viewer_grant if {
 	}]}
 }
 
+test_denies_alert_without_runbook if {
+	d := deny with input as {"resource_changes": [{
+		"address": "module.obs.google_monitoring_alert_policy.egress[0]",
+		"type": "google_monitoring_alert_policy",
+		"change": {"actions": ["create"], "after": {"documentation": []}},
+	}]}
+	count(d) == 1
+}
+
+test_allows_alert_with_runbook if {
+	count(deny) == 0 with input as {"resource_changes": [{
+		"address": "module.obs.google_monitoring_alert_policy.egress[0]",
+		"type": "google_monitoring_alert_policy",
+		"change": {"actions": ["create"], "after": {"documentation": [{"content": "Runbook: https://x", "mime_type": "text/markdown"}]}},
+	}]}
+}
+
 test_denies_oversized_destroy if {
 	deletions := [rc |
 		some i in numbers.range(1, 6)

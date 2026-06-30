@@ -111,6 +111,21 @@ deny contains msg if {
 	msg := sprintf("%s: CMEK key must set rotation_period", [rc.address])
 }
 
+# --- Observability: every alert must link a runbook. The observability module always ships one;
+#     this blocks any hand-written alert that doesn't (ADR-0006). ---
+deny contains msg if {
+	some rc in upserts
+	rc.type == "google_monitoring_alert_policy"
+	not has_runbook(rc)
+	msg := sprintf("%s: alert policy must link a runbook (documentation.content required)", [rc.address])
+}
+
+has_runbook(rc) if {
+	some doc in rc.change.after.documentation
+	doc.content != ""
+	doc.content != null
+}
+
 # --- Required labels on labelled resource types. ---
 deny contains msg if {
 	some rc in upserts
