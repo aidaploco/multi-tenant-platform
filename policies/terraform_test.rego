@@ -168,6 +168,23 @@ test_denies_subnet_without_pga if {
 	count(d) == 1
 }
 
+test_denies_public_gke if {
+	d := deny with input as {"resource_changes": [{
+		"address": "google_container_cluster.bad",
+		"type": "google_container_cluster",
+		"change": {"actions": ["create"], "after": {"private_cluster_config": []}},
+	}]}
+	count(d) == 1
+}
+
+test_allows_private_gke if {
+	count(deny) == 0 with input as {"resource_changes": [{
+		"address": "google_container_cluster.ok",
+		"type": "google_container_cluster",
+		"change": {"actions": ["create"], "after": {"private_cluster_config": [{"enable_private_nodes": true}]}},
+	}]}
+}
+
 test_denies_oversized_destroy if {
 	deletions := [rc |
 		some i in numbers.range(1, 6)

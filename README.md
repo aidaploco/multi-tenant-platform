@@ -29,6 +29,7 @@ module "project" {
 | `observability` | Log sink + alert policies + dashboard per resource | ⏳ |
 | [`agent-identity`](modules/agent-identity) | Agent-unit archetype: runtime SA + Workload Identity binding + least-privilege IAM | ✅ |
 | [`shared-vpc`](modules/shared-vpc) | Runtime-plane private network: PGA, Cloud NAT, default-deny firewall, VPC-native ranges | ✅ |
+| [`gke-autopilot`](modules/gke-autopilot) | Shared runtime cluster: private Autopilot + Workload Identity | ✅ |
 
 > This is an MVP reference implementation. Modules are built as a thin vertical slice that
 > demonstrates the platform's patterns end-to-end; the remaining modules from the full design

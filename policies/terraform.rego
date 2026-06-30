@@ -153,6 +153,19 @@ deny contains msg if {
 	msg := sprintf("%s: private_ip_google_access must be true", [rc.address])
 }
 
+# --- GKE: clusters must use private nodes (no public node IPs). ---
+deny contains msg if {
+	some rc in upserts
+	rc.type == "google_container_cluster"
+	not gke_private_nodes(rc)
+	msg := sprintf("%s: GKE cluster must enable private nodes", [rc.address])
+}
+
+gke_private_nodes(rc) if {
+	some pcc in rc.change.after.private_cluster_config
+	pcc.enable_private_nodes == true
+}
+
 # --- Approved regions only (data residency). ---
 deny contains msg if {
 	some rc in upserts
