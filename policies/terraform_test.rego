@@ -185,6 +185,23 @@ test_allows_private_gke if {
 	}]}
 }
 
+test_denies_public_composer if {
+	d := deny with input as {"resource_changes": [{
+		"address": "google_composer_environment.bad",
+		"type": "google_composer_environment",
+		"change": {"actions": ["create"], "after": {"config": [{"private_environment_config": [{"enable_private_endpoint": false}]}]}},
+	}]}
+	count(d) == 1
+}
+
+test_allows_private_composer if {
+	count(deny) == 0 with input as {"resource_changes": [{
+		"address": "google_composer_environment.ok",
+		"type": "google_composer_environment",
+		"change": {"actions": ["create"], "after": {"config": [{"private_environment_config": [{"enable_private_endpoint": true}]}]}},
+	}]}
+}
+
 test_denies_oversized_destroy if {
 	deletions := [rc |
 		some i in numbers.range(1, 6)

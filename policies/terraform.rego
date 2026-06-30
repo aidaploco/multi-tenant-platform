@@ -166,6 +166,20 @@ gke_private_nodes(rc) if {
 	pcc.enable_private_nodes == true
 }
 
+# --- Composer: environments must use a private endpoint (no public IPs). ---
+deny contains msg if {
+	some rc in upserts
+	rc.type == "google_composer_environment"
+	not composer_private(rc)
+	msg := sprintf("%s: Composer environment must enable a private endpoint", [rc.address])
+}
+
+composer_private(rc) if {
+	some cfg in rc.change.after.config
+	some pec in cfg.private_environment_config
+	pec.enable_private_endpoint == true
+}
+
 # --- Approved regions only (data residency). ---
 deny contains msg if {
 	some rc in upserts
