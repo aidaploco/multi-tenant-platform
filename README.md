@@ -32,6 +32,7 @@ module "project" {
 | [`gke-autopilot`](modules/gke-autopilot) | Shared runtime cluster: private Autopilot + Workload Identity | ✅ |
 | [`cloud-composer`](modules/cloud-composer) | Shared managed-Airflow plane: private environment + own SA | ✅ |
 | [`config-sync`](modules/config-sync) | GitOps loop: installs Config Sync (Fleet) pointed at the gitops/ dir | ✅ |
+| [`tenant-namespace`](modules/tenant-namespace) | Per-tenant namespace isolation: default-deny, quota, WI SA, RBAC (kubernetes provider) | ✅ |
 
 > This is an MVP reference implementation. Modules are built as a thin vertical slice that
 > demonstrates the platform's patterns end-to-end; the remaining modules from the full design
