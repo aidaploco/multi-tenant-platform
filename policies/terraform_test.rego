@@ -134,6 +134,40 @@ test_allows_alert_with_runbook if {
 	}]}
 }
 
+test_denies_world_open_ingress if {
+	d := deny with input as {"resource_changes": [{
+		"address": "google_compute_firewall.bad",
+		"type": "google_compute_firewall",
+		"change": {"actions": ["create"], "after": {
+			"direction": "INGRESS",
+			"allow": [{"protocol": "tcp", "ports": ["22"]}],
+			"source_ranges": ["0.0.0.0/0"],
+		}},
+	}]}
+	count(d) == 1
+}
+
+test_allows_iap_scoped_ingress if {
+	count(deny) == 0 with input as {"resource_changes": [{
+		"address": "google_compute_firewall.iap",
+		"type": "google_compute_firewall",
+		"change": {"actions": ["create"], "after": {
+			"direction": "INGRESS",
+			"allow": [{"protocol": "tcp", "ports": ["22"]}],
+			"source_ranges": ["35.235.240.0/20"],
+		}},
+	}]}
+}
+
+test_denies_subnet_without_pga if {
+	d := deny with input as {"resource_changes": [{
+		"address": "google_compute_subnetwork.bad",
+		"type": "google_compute_subnetwork",
+		"change": {"actions": ["create"], "after": {"private_ip_google_access": false}},
+	}]}
+	count(d) == 1
+}
+
 test_denies_oversized_destroy if {
 	deletions := [rc |
 		some i in numbers.range(1, 6)

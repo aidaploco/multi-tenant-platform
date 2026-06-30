@@ -135,6 +135,24 @@ deny contains msg if {
 	msg := sprintf("%s: missing required label %q", [rc.address, key])
 }
 
+# --- Networking: no ingress allow rule open to the world. ---
+deny contains msg if {
+	some rc in upserts
+	rc.type == "google_compute_firewall"
+	rc.change.after.direction == "INGRESS"
+	count(rc.change.after.allow) > 0
+	"0.0.0.0/0" in rc.change.after.source_ranges
+	msg := sprintf("%s: ingress allow rule must not use source 0.0.0.0/0", [rc.address])
+}
+
+# --- Networking: subnets must have Private Google Access (no external IPs for Google APIs). ---
+deny contains msg if {
+	some rc in upserts
+	rc.type == "google_compute_subnetwork"
+	rc.change.after.private_ip_google_access != true
+	msg := sprintf("%s: private_ip_google_access must be true", [rc.address])
+}
+
 # --- Approved regions only (data residency). ---
 deny contains msg if {
 	some rc in upserts
