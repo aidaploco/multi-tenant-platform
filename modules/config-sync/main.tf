@@ -51,6 +51,17 @@ resource "google_gke_hub_feature_membership" "this" {
         secret_type = var.secret_type
       }
     }
+
+    # Policy Controller (Gatekeeper) enforces the gitops constraints — e.g. no shared default SA in
+    # tenant namespaces (ADR-0015). Toggle off only if enforcing elsewhere.
+    dynamic "policy_controller" {
+      for_each = var.enable_policy_controller ? [1] : []
+      content {
+        enabled                    = true
+        template_library_installed = true
+        referential_rules_enabled  = true
+      }
+    }
   }
 }
 

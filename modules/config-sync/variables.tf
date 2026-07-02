@@ -46,6 +46,12 @@ variable "secret_type" {
   }
 }
 
+variable "enable_policy_controller" {
+  description = "Enable Policy Controller (Gatekeeper) to enforce the gitops constraints (ADR-0015)."
+  type        = bool
+  default     = true
+}
+
 variable "rotation_days" {
   description = "Rotation cadence recorded on the git-token secret (ADR-0006). Operational refresh; SM rotation needs a function."
   type        = number
