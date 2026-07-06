@@ -4,8 +4,10 @@
 # a specific baseline alert (the _enable flags) or ADD their own, but they cannot
 # remove this module's invocation. Thresholds are hardcoded-but-overridable.
 #
-# What this module does NOT do: create the log bucket (tenant bootstrap owns it)
-# or create notification channels (one set per tenant, passed in here).
+# What this module does NOT do: create the log bucket or the notification
+# channels -- both are consumed by ID, never created here. NOTE: nothing in the
+# platform creates a tenant log bucket yet, so no caller passes log_bucket_id
+# today; the per-tenant WORM log-bucket (ADR-0006) is tracked, not built.
 
 locals {
   labels = merge(var.labels, { "managed-by" = "terraform" })

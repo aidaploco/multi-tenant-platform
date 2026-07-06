@@ -20,7 +20,7 @@ variable "notification_channels" {
 }
 
 variable "log_bucket_id" {
-  description = "Destination log bucket ID. When set, a log sink routes this resource's logs there. When null, no sink is created (the tenant bootstrap owns the bucket, not this module)."
+  description = "Destination log bucket ID. When set, a log sink routes this resource's logs there. When null, no sink is created. The bucket is never created here -- and nothing in the platform creates one yet (ADR-0006 tracked)."
   type        = string
   default     = null
 }

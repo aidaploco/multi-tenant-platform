@@ -190,8 +190,14 @@ deny contains msg if {
 }
 
 # --- Destroy threshold: large teardowns must be explicit. ---
+# The override is external data, never plan content: the deliberate teardown pipeline passes
+# `--data {"exceptions": {"allow_destroy_over_threshold": true}}` (see platform-config's opa-gate
+# `allow_destroy` input). A PR cannot waive its own gate; only the offboarding path sets this.
+destroy_override if data.exceptions.allow_destroy_over_threshold == true
+
 deny contains msg if {
+	not destroy_override
 	deletions := [rc | some rc in resource_changes; "delete" in rc.change.actions]
 	count(deletions) > max_destroyed
-	msg := sprintf("plan destroys %d resources (max %d) -- add an explicit override label to proceed", [count(deletions), max_destroyed])
+	msg := sprintf("plan destroys %d resources (max %d) -- offboarding a tenant? use the teardown pipeline, which sets the explicit destroy override", [count(deletions), max_destroyed])
 }

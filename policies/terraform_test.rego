@@ -214,3 +214,29 @@ test_denies_oversized_destroy if {
 	d := deny with input as {"resource_changes": deletions}
 	count(d) >= 1
 }
+
+# The teardown pipeline's explicit override waives ONLY the destroy threshold...
+test_allows_oversized_destroy_with_override if {
+	deletions := [rc |
+		some i in numbers.range(1, 6)
+		rc := {
+			"address": sprintf("google_storage_bucket.b%d", [i]),
+			"type": "google_storage_bucket",
+			"change": {"actions": ["delete"], "after": null},
+		}
+	]
+	count(deny) == 0 with input as {"resource_changes": deletions}
+		with data.exceptions.allow_destroy_over_threshold as true
+}
+
+# ...every other deny still applies during a teardown (an offboard must not smuggle in, say, a
+# service-account key).
+test_override_does_not_waive_other_denies if {
+	d := deny with input as {"resource_changes": [{
+		"address": "google_service_account_key.bad",
+		"type": "google_service_account_key",
+		"change": {"actions": ["create"], "after": {}},
+	}]}
+		with data.exceptions.allow_destroy_over_threshold as true
+	count(d) == 1
+}
