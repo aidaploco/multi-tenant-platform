@@ -49,6 +49,103 @@ resource "kubernetes_network_policy" "allow_same_namespace" {
   }
 }
 
+# Egress: default-deny + an explicit allow-list (ADR-0022 D22-4 in platform-config). The two
+# ingress policies above stop other tenants reaching IN; neither touches egress, so — checked
+# directly, not assumed — every pod here could reach OUT anywhere, including other tenants'
+# pods, this cluster's own control plane, and (on real GKE) the metadata server. This closes
+# that gap with the same default-deny shape as ingress.
+resource "kubernetes_network_policy" "default_deny_egress" {
+  metadata {
+    name      = "default-deny-egress"
+    namespace = kubernetes_namespace.this.metadata[0].name
+  }
+  spec {
+    pod_selector {}
+    policy_types = ["Egress"]
+
+    # DNS — without this nothing else resolves, including every rule below.
+    egress {
+      to {
+        namespace_selector {
+          match_labels = { "kubernetes.io/metadata.name" = "kube-system" }
+        }
+        pod_selector {
+          match_labels = { "k8s-app" = "kube-dns" }
+        }
+      }
+      ports {
+        port     = "53"
+        protocol = "UDP"
+      }
+      ports {
+        port     = "53"
+        protocol = "TCP"
+      }
+    }
+
+    # A tenant's own pods can talk to each other (egress-side mirror of allow-same-namespace).
+    egress {
+      to {
+        pod_selector {}
+      }
+    }
+
+    # Shared platform-system control-plane services (Temporal today; anything else the
+    # platform team runs there later, e.g. an OTel collector) are trusted infrastructure, not
+    # tenant-boundary-relevant — namespace-level trust, consistent with how this module reasons
+    # about isolation everywhere else. On real GKE with Temporal Cloud this rule is a no-op
+    # (nothing in platform-system to reach); Temporal Cloud's own reachability at activation is
+    # covered by the external-internet rule below and is unverified until a real cluster exists
+    # (same honesty as every other real-cluster gap in docs/VERIFICATION.md).
+    egress {
+      to {
+        namespace_selector {
+          match_labels = { "kubernetes.io/metadata.name" = "platform-system" }
+        }
+      }
+    }
+
+    # The internet, minus this cluster's own private address space. Standard Kubernetes
+    # NetworkPolicy can't match by hostname (no FQDN allow-listing without a CNI extension like
+    # Cilium), so "only api.openai.com" isn't expressible here — this is the practical
+    # compromise: let workloads reach external APIs, block the SSRF-shaped targets that
+    # actually matter. Verified directly against this cluster: both the pod CIDR (10.244.0.0/16)
+    # and service CIDR (10.96.0.0/16) fall inside 10.0.0.0/8, so this genuinely blocks reaching
+    # another tenant's pod/Service by IP, not just looks like it does.
+    egress {
+      to {
+        ip_block {
+          cidr = "0.0.0.0/0"
+          except = [
+            "10.0.0.0/8",
+            "172.16.0.0/12",
+            "192.168.0.0/16",
+            "169.254.0.0/16", # link-local + the cloud metadata service (169.254.169.254)
+          ]
+        }
+      }
+    }
+
+    # Narrow, explicit, documented exceptions beyond the baseline above — e.g. a local-dev
+    # dependency that lives outside the cluster entirely (ADR-0022). Empty by default; never
+    # populated in real/GKE mode.
+    dynamic "egress" {
+      for_each = var.extra_egress_cidrs
+      content {
+        to {
+          ip_block {
+            cidr = egress.value.cidr
+          }
+        }
+        ports {
+          port     = egress.value.port
+          protocol = egress.value.protocol
+        }
+      }
+    }
+  }
+}
+
 # A noisy tenant can't starve the shared cluster.
 resource "kubernetes_resource_quota" "this" {
   metadata {

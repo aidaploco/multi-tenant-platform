@@ -32,6 +32,16 @@ variable "quota" {
   }
 }
 
+variable "extra_egress_cidrs" {
+  description = "Explicit, additional egress allow-rules beyond the default baseline (DNS, same-namespace, platform-system, external-minus-private-ranges). For narrow, documented exceptions only — e.g. a local-dev dependency that lives outside the cluster (ADR-0022 in platform-config). `cidr` should be a /32 for a single host unless a real range is intended. Never populated in real/GKE mode."
+  type = list(object({
+    cidr     = string
+    port     = string
+    protocol = optional(string, "TCP")
+  }))
+  default = []
+}
+
 variable "labels" {
   description = "Namespace labels; managed-by is injected automatically."
   type        = map(string)
