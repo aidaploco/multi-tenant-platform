@@ -5,8 +5,8 @@ Reusable, **versioned** Terraform modules for the multi-tenant GCP data platform
 
 - **`platform-modules`** (this repo) — the building blocks. No tenant- or environment-specific
   values live here. Platform team owns it.
-- **`platform-config`** — the tenant registry (one YAML per tenant), Terragrunt roots, CI/CD,
-  and policies. Consumes these modules by **pinned git tag**, never `main`.
+- **`platform-config`** — the tenant registry (one YAML per tenant), Terraform deploy roots,
+  CI/CD, and policies. Consumes these modules by **pinned git tag**, never `main`.
 
 ## Consuming a module
 
@@ -24,9 +24,9 @@ module "project" {
 | Module | Purpose | Status |
 | ------ | ------- | ------ |
 | [`gcp-project`](modules/gcp-project) | The tenant isolation boundary: project + APIs + labels | ✅ |
-| `kms-tenant` | Per-tenant KMS keyring + CMEK keys with native rotation | ⏳ |
-| `gcs` | GCS bucket: CMEK-required, uniform access, private | ⏳ |
-| `observability` | Log sink + alert policies + dashboard per resource | ⏳ |
+| `kms-tenant` | Per-tenant KMS keyring + CMEK keys with native rotation | ✅ |
+| `gcs` | GCS bucket: CMEK-required, uniform access, private | ✅ |
+| `observability` | Log sink + alert policies + dashboard per resource | ✅ |
 | [`agent-identity`](modules/agent-identity) | Agent-unit archetype: runtime SA + Workload Identity binding + least-privilege IAM | ✅ |
 | [`shared-vpc`](modules/shared-vpc) | Runtime-plane private network: PGA, Cloud NAT, default-deny firewall, VPC-native ranges | ✅ |
 | [`gke-autopilot`](modules/gke-autopilot) | Shared runtime cluster: private Autopilot + Workload Identity | ✅ |
@@ -34,10 +34,11 @@ module "project" {
 | [`config-sync`](modules/config-sync) | GitOps loop: installs Config Sync (Fleet) pointed at the gitops/ dir | ✅ |
 | [`tenant-namespace`](modules/tenant-namespace) | Per-tenant namespace isolation: default-deny, quota, WI SA, RBAC (kubernetes provider) | ✅ |
 
-> This is an MVP reference implementation. Modules are built as a thin vertical slice that
-> demonstrates the platform's patterns end-to-end; the remaining modules from the full design
-> (shared-vpc, vpc-sc, cloud-sql, bigquery, pubsub, gke-autopilot, cloud-composer, …) follow
-> the same conventions.
+> This is an MVP reference implementation. The table above is current, not aspirational — every
+> module in it is built, tested, and consumed at a real version pin (see `platform-config`'s
+> `VERSIONS.md`). What's still outside this vertical slice: `vpc-sc`, `cloud-sql`,
+> `bigquery`/`pubsub` (the `data-unit` archetype's dependencies) — deferred to activation, not
+> forgotten (`platform-config`'s `docs/PLAN.md`).
 
 ## Conventions
 
@@ -62,7 +63,9 @@ terraform validate                   # config correctness
 terraform test                       # unit tests with a MOCKED provider — no cloud, no cost
 ```
 
-Versioning is automated by [semantic-release] on merge to `main` (conventional commits).
+Versioning is **manual**: tags are cut by hand (`git tag vX.Y.Z` + push) after a merge to
+`main`, recorded in `platform-config`'s `VERSIONS.md` — no release automation exists yet.
+Semantic-release on conventional commits is a real nice-to-have, tracked as event-gated in
+`platform-config`'s `docs/PLAN.md`, not something already running.
 
 [ADR-0001]: ../multi-tenant-config/docs/adr/0001-platform-architecture.md
-[semantic-release]: https://semantic-release.gitbook.io/
