@@ -4,13 +4,13 @@
 mock_provider "google" {}
 
 variables {
-  project_id          = "runtime-dev"
-  region              = "europe-west4"
-  network             = "projects/runtime-dev/global/networks/runtime-vpc"
-  subnetwork          = "projects/runtime-dev/regions/europe-west4/subnetworks/runtime-vpc-europe-west4"
-  pods_range_name     = "pods"
-  services_range_name = "services"
-  master_ipv4_cidr    = "172.16.0.0/28"
+  project_id              = "runtime-dev"
+  region                  = "europe-west4"
+  network                 = "projects/runtime-dev/global/networks/runtime-vpc"
+  subnetwork              = "projects/runtime-dev/regions/europe-west4/subnetworks/runtime-vpc-europe-west4"
+  pods_range_name         = "pods"
+  services_range_name     = "services"
+  master_ipv4_cidr        = "172.16.0.0/28"
   database_encryption_key = "projects/runtime-dev/locations/europe-west4/keyRings/platform/cryptoKeys/gke-secrets"
   boot_disk_kms_key       = "projects/runtime-dev/locations/europe-west4/keyRings/platform/cryptoKeys/gke-disks"
   labels = {
