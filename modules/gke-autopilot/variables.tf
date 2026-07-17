@@ -74,3 +74,23 @@ variable "labels" {
     error_message = "labels must include all of: tenant, environment, data_classification."
   }
 }
+
+variable "database_encryption_key" {
+  description = "CMEK crypto-key ID for application-layer encryption of Kubernetes Secrets in etcd (ADR-0025 D25-1). REQUIRED — substrate encryption is not optional. A PLATFORM key (runtime project), never a tenant key: shared substrate cannot be per-tenant encrypted."
+  type        = string
+
+  validation {
+    condition     = length(var.database_encryption_key) > 0
+    error_message = "database_encryption_key must be set — a cluster without substrate CMEK is a silent compliance gap (ADR-0025)."
+  }
+}
+
+variable "boot_disk_kms_key" {
+  description = "CMEK crypto-key ID for node boot disks, applied via Autopilot auto-provisioning defaults (ADR-0025 D25-1). REQUIRED. The Compute service agent needs cryptoKeyEncrypterDecrypter on it — granted by the caller."
+  type        = string
+
+  validation {
+    condition     = length(var.boot_disk_kms_key) > 0
+    error_message = "boot_disk_kms_key must be set — a cluster without substrate CMEK is a silent compliance gap (ADR-0025)."
+  }
+}

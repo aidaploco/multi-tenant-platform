@@ -11,6 +11,8 @@ variables {
   pods_range_name     = "pods"
   services_range_name = "services"
   master_ipv4_cidr    = "172.16.0.0/28"
+  database_encryption_key = "projects/runtime-dev/locations/europe-west4/keyRings/platform/cryptoKeys/gke-secrets"
+  boot_disk_kms_key       = "projects/runtime-dev/locations/europe-west4/keyRings/platform/cryptoKeys/gke-disks"
   labels = {
     tenant              = "platform"
     environment         = "dev"
@@ -45,4 +47,29 @@ run "rejects_bad_release_channel" {
   }
 
   expect_failures = [var.release_channel]
+}
+
+run "substrate_cmek_is_wired" {
+  command = plan
+
+  assert {
+    condition     = google_container_cluster.this.database_encryption[0].state == "ENCRYPTED"
+    error_message = "etcd application-layer encryption must be ENCRYPTED with the platform key (ADR-0025 D25-1)."
+  }
+
+  assert {
+    condition     = google_container_cluster.this.cluster_autoscaling[0].auto_provisioning_defaults[0].boot_disk_kms_key == var.boot_disk_kms_key
+    error_message = "Node boot disks must use the platform CMEK key (ADR-0025 D25-1)."
+  }
+}
+
+run "rejects_empty_substrate_keys" {
+  command = plan
+
+  variables {
+    database_encryption_key = ""
+    boot_disk_kms_key       = ""
+  }
+
+  expect_failures = [var.database_encryption_key, var.boot_disk_kms_key]
 }

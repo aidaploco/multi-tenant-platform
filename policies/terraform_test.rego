@@ -121,7 +121,10 @@ test_denies_alert_without_runbook if {
 	d := deny with input as {"resource_changes": [{
 		"address": "module.obs.google_monitoring_alert_policy.egress[0]",
 		"type": "google_monitoring_alert_policy",
-		"change": {"actions": ["create"], "after": {"documentation": []}},
+		"change": {"actions": ["create"], "after": {
+			"documentation":         [],
+			"notification_channels": ["projects/abf-dev/notificationChannels/123"],
+		}},
 	}]}
 	count(d) == 1
 }
@@ -130,7 +133,46 @@ test_allows_alert_with_runbook if {
 	count(deny) == 0 with input as {"resource_changes": [{
 		"address": "module.obs.google_monitoring_alert_policy.egress[0]",
 		"type": "google_monitoring_alert_policy",
-		"change": {"actions": ["create"], "after": {"documentation": [{"content": "Runbook: https://x", "mime_type": "text/markdown"}]}},
+		"change": {"actions": ["create"], "after": {
+			"documentation":         [{"content": "Runbook: https://x", "mime_type": "text/markdown"}],
+			"notification_channels": ["projects/abf-dev/notificationChannels/123"],
+		}},
+	}]}
+}
+
+test_denies_alert_without_notification_channels if {
+	d := deny with input as {"resource_changes": [{
+		"address": "module.obs.google_monitoring_alert_policy.egress[0]",
+		"type": "google_monitoring_alert_policy",
+		"change": {"actions": ["create"], "after": {
+			"documentation":          [{"content": "Runbook: https://x", "mime_type": "text/markdown"}],
+			"notification_channels":  [],
+		}},
+	}]}
+	count(d) == 1
+}
+
+test_allows_alert_with_notification_channels if {
+	count(deny) == 0 with input as {"resource_changes": [{
+		"address": "module.obs.google_monitoring_alert_policy.egress[0]",
+		"type": "google_monitoring_alert_policy",
+		"change": {"actions": ["create"], "after": {
+			"documentation":          [{"content": "Runbook: https://x", "mime_type": "text/markdown"}],
+			"notification_channels":  ["projects/abf-dev/notificationChannels/123"],
+		}},
+	}]}
+}
+
+# Channels created in the same plan: refs unknown until apply — must NOT be denied (ADR-0025).
+test_allows_alert_with_plan_time_unknown_channels if {
+	count(deny) == 0 with input as {"resource_changes": [{
+		"address": "module.obs.google_monitoring_alert_policy.egress[0]",
+		"type": "google_monitoring_alert_policy",
+		"change": {
+			"actions":       ["create"],
+			"after":         {"documentation": [{"content": "Runbook: https://x", "mime_type": "text/markdown"}]},
+			"after_unknown": {"notification_channels": true},
+		},
 	}]}
 }
 

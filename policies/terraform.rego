@@ -126,6 +126,32 @@ has_runbook(rc) if {
 	doc.content != null
 }
 
+# --- Observability: every alert must terminate in >=1 notification channel (ADR-0025 D25-2).
+#     The companion of the runbook rule above: an alert nobody receives is a compliance
+#     decoration, not a control. Channels created in the SAME plan are unknown at plan time
+#     (after_unknown), and that is accepted — the rule targets alerts wired to nothing, not
+#     fresh-tenant applies. ---
+deny contains msg if {
+	some rc in upserts
+	rc.type == "google_monitoring_alert_policy"
+	not has_notification_channels(rc)
+	msg := sprintf("%s: alert policy must terminate in >=1 notification channel (ADR-0025)", [rc.address])
+}
+
+has_notification_channels(rc) if {
+	count(rc.change.after.notification_channels) > 0
+}
+
+# Whole attribute unknown at plan time (channel refs resolve at apply).
+has_notification_channels(rc) if {
+	rc.change.after_unknown.notification_channels == true
+}
+
+# Known-length list of unknown refs.
+has_notification_channels(rc) if {
+	count(rc.change.after_unknown.notification_channels) > 0
+}
+
 # --- Required labels on labelled resource types. ---
 deny contains msg if {
 	some rc in upserts

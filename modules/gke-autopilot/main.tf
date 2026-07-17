@@ -52,6 +52,27 @@ resource "google_container_cluster" "this" {
     workload_pool = "${var.project_id}.svc.id.goog"
   }
 
+  # Substrate CMEK (ADR-0025 D25-1): PLATFORM keys for platform substrate — per-tenant CMEK is
+  # physically impossible on shared disks (one node hosts many tenants' pods); tenant-data CMEK
+  # stays per-tenant in tenant projects. Both variables are REQUIRED: a cluster without
+  # substrate CMEK must be a visible fork of this module, never a forgotten argument.
+  #
+  # Application-layer encryption of Kubernetes Secrets in etcd.
+  database_encryption {
+    state    = "ENCRYPTED"
+    key_name = var.database_encryption_key
+  }
+
+  # Node boot-disk CMEK. On Autopilot the node config is Google-managed, so the key rides the
+  # auto-provisioning defaults. The GKE + Compute service agents need
+  # roles/cloudkms.cryptoKeyEncrypterDecrypter on the respective keys — granted by the CALLER
+  # (the runtime root), next to the keys; grant-vs-first-cluster ordering is register-tracked.
+  cluster_autoscaling {
+    auto_provisioning_defaults {
+      boot_disk_kms_key = var.boot_disk_kms_key
+    }
+  }
+
   resource_labels     = local.labels
   deletion_protection = var.deletion_protection
 }

@@ -37,6 +37,8 @@ module "cluster" {
 | `master_ipv4_cidr` | string | — | `/28` for the private control plane. |
 | `master_authorized_networks` | list(obj) | `[]` | CIDRs allowed to reach the control plane (`[]` = none; admin via IAP). |
 | `release_channel` | string | `REGULAR` | `RAPID`\|`REGULAR`\|`STABLE`. |
+| `database_encryption_key` | string | — (required) | Platform CMEK for Secrets-in-etcd (ADR-0025). Caller grants the GKE service agent on it. |
+| `boot_disk_kms_key` | string | — (required) | Platform CMEK for node boot disks via Autopilot provisioning defaults (ADR-0025). Caller grants the Compute service agent on it. |
 | `deletion_protection` | bool | `true` | |
 | `labels` | map | — | Must include tenant/environment/data_classification. |
 
