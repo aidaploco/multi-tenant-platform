@@ -43,3 +43,26 @@ run "rejects_missing_required_label" {
 
   expect_failures = [var.labels]
 }
+
+run "tenant_rbac_is_view_not_edit" {
+  command = plan
+
+  assert {
+    condition     = kubernetes_role_binding.viewers.role_ref[0].name == "view"
+    error_message = "Tenant group must bind `view`, never `edit` — NetworkPolicies and workloads are platform-owned (ADR-0023)."
+  }
+}
+
+run "operate_role_never_grants_networkpolicy_write" {
+  command = plan
+
+  assert {
+    condition     = alltrue([for r in kubernetes_role.operators.rule : !contains(r.api_groups, "networking.k8s.io")])
+    error_message = "The tenant operate role must never include networking.k8s.io — a tenant-writable NetworkPolicy defeats default-deny (ADR-0023)."
+  }
+
+  assert {
+    condition     = contains(kubernetes_role.operators.rule[0].resources, "secrets")
+    error_message = "Tenants must keep Secret rights — the ADR-0020 secret_ref contract has a human pre-create app Secrets."
+  }
+}

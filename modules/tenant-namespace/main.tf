@@ -191,16 +191,71 @@ resource "kubernetes_service_account" "workload" {
   }
 }
 
-# The tenant's group gets edit rights ONLY in its namespace (RoleBinding, never ClusterRoleBinding).
-resource "kubernetes_role_binding" "editors" {
+# Tenant humans get READ (built-in `view`) plus the narrow operate role below — NOT `edit`
+# (ADR-0023 in platform-config). `edit` includes create/update/delete on NetworkPolicies, and
+# NetworkPolicies are additive-permissive: one tenant-created allow-all egress policy — or a
+# plain delete of default-deny-egress — would quietly defeat the baseline above. RBAC is the
+# PRIMARY layer here because it is the only one that covers DELETE: Gatekeeper's webhook only
+# intercepts CREATE/UPDATE (checked against the live webhook config, not assumed). The
+# admission backstop for other write paths is the deny-tenant-netpol constraint in
+# platform-config gitops/.
+resource "kubernetes_role_binding" "viewers" {
   metadata {
-    name      = "tenant-editors"
+    name      = "tenant-viewers"
     namespace = kubernetes_namespace.this.metadata[0].name
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
-    name      = "edit"
+    name      = "view"
+  }
+  subject {
+    kind      = "Group"
+    name      = var.owner_group
+    api_group = "rbac.authorization.k8s.io"
+  }
+}
+
+# What tenants may WRITE, shaped by the delivery contract instead of a k8s built-in: workloads
+# arrive via GitOps (ADR-0017), never kubectl — the only hand-managed objects are the
+# pre-created app Secrets (ADR-0020 `secret_ref`), plus the debugging surfaces (logs, exec,
+# port-forward). `view` deliberately excludes Secrets; this role adds them back, scoped to this
+# namespace only. A legitimate new tenant need extends THIS rule list (a reviewable diff) —
+# never a fallback to `edit`.
+resource "kubernetes_role" "operators" {
+  metadata {
+    name      = "tenant-operators"
+    namespace = kubernetes_namespace.this.metadata[0].name
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["secrets"]
+    verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["pods/log"]
+    verbs      = ["get"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["pods/exec", "pods/portforward"]
+    verbs      = ["get", "create"]
+  }
+}
+
+resource "kubernetes_role_binding" "operators" {
+  metadata {
+    name      = "tenant-operators"
+    namespace = kubernetes_namespace.this.metadata[0].name
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "Role"
+    name      = kubernetes_role.operators.metadata[0].name
   }
   subject {
     kind      = "Group"

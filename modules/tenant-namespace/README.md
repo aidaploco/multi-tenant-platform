@@ -12,11 +12,14 @@ Config-Sync-synced tree, so Terraform is the only controller managing these obje
 ## What it creates
 
 - the **Namespace**,
-- `default-deny-ingress` + `allow-same-namespace` **NetworkPolicies**,
+- `default-deny-ingress` + `allow-same-namespace` + `default-deny-egress` (with its explicit
+  allow-list, ADR-0022) **NetworkPolicies**,
 - a **ResourceQuota** + **LimitRange**,
 - one **Kubernetes SA per agent-unit**, annotated `iam.gke.io/gcp-service-account` to impersonate
   that unit's GCP SA (completes the Workload Identity bridge),
-- a namespace-scoped **RoleBinding** (the tenant's group → `edit`).
+- namespace-scoped **RBAC** (ADR-0023): the tenant's group → `view` + a narrow `tenant-operators`
+  Role (Secrets, logs, exec, port-forward) — never `edit`, so tenants can never write or delete
+  the NetworkPolicies above.
 
 ## Usage
 
@@ -38,7 +41,7 @@ module "namespace" {
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `namespace` | string | — | The tenant slug. |
-| `owner_group` | string | — | Group granted `edit` in this namespace only. |
+| `owner_group` | string | — | Group granted `view` + operate (Secrets/logs/exec/port-forward) in this namespace only. |
 | `service_accounts` | map(string) | `{}` | KSA name → GCP SA email (per agent-unit). |
 | `quota` | object | sensible | ResourceQuota hard limits. |
 | `labels` | map | — | Must include tenant/environment/data_classification. |

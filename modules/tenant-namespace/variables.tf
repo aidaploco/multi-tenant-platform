@@ -4,7 +4,7 @@ variable "namespace" {
 }
 
 variable "owner_group" {
-  description = "Google group granted edit rights WITHIN this namespace only."
+  description = "Google group granted read + operate rights (view, Secrets, logs, exec/port-forward) WITHIN this namespace only — never `edit`; workloads and NetworkPolicies are platform-owned (ADR-0023)."
   type        = string
 }
 
