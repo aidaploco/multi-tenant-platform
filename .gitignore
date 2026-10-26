@@ -247,3 +247,6 @@ terraform.rc
 *.tfplan
 plan.json
 
+
+# macOS
+.DS_Store
