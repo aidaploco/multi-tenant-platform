@@ -282,3 +282,44 @@ test_override_does_not_waive_other_denies if {
 		with data.exceptions.allow_destroy_over_threshold as true
 	count(d) == 1
 }
+
+# --- deletion guard ---
+
+delete_of(type) := {
+	"address": sprintf("module.x.%s.this", [type]),
+	"type": type,
+	"change": {"actions": ["delete"], "after": null},
+}
+
+test_denies_single_project_delete if {
+	d := deny with input as {"resource_changes": [delete_of("google_project")]}
+	count(d) == 1
+}
+
+test_denies_kms_key_delete if {
+	d := deny with input as {"resource_changes": [delete_of("google_kms_crypto_key")]}
+	count(d) == 1
+}
+
+test_denies_bucket_replace if {
+	d := deny with input as {"resource_changes": [{
+		"address": "module.landing.google_storage_bucket.this",
+		"type": "google_storage_bucket",
+		"change": {"actions": ["delete", "create"], "after": compliant_bucket.change.after},
+	}]}
+	count(d) == 1
+}
+
+test_allows_unprotected_delete if {
+	count(deny) == 0 with input as {"resource_changes": [delete_of("google_monitoring_dashboard")]}
+}
+
+test_allows_protected_update_in_place if {
+	bucket := json.patch(compliant_bucket, [{"op": "replace", "path": "/change/actions", "value": ["update"]}])
+	count(deny) == 0 with input as {"resource_changes": [bucket]}
+}
+
+test_teardown_override_allows_protected_delete if {
+	count(deny) == 0 with input as {"resource_changes": [delete_of("google_project")]}
+		with data.exceptions as {"allow_destroy_over_threshold": true}
+}

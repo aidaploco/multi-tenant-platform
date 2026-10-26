@@ -215,6 +215,26 @@ deny contains msg if {
 	msg := sprintf("%s: location %q is not approved (allowed: %v)", [rc.address, rc.change.after.location, approved_locations])
 }
 
+# --- Deletion guard: data-bearing and identity-bearing resources are never deleted or replaced. ---
+# The destroy threshold below counts deletions, so a plan that removes ONE tenant project or ONE
+# CMEK key sails under it. These types hold the tenant boundary, the data, or the keys that make
+# the data readable, so even a single delete (or a replace, which plans as delete+create) is denied.
+# Same external override as the threshold: only the offboarding pipeline sets it, never a PR.
+protected_types := {
+	"google_project",
+	"google_kms_key_ring",
+	"google_kms_crypto_key",
+	"google_storage_bucket",
+}
+
+deny contains msg if {
+	not destroy_override
+	some rc in resource_changes
+	rc.type in protected_types
+	"delete" in rc.change.actions
+	msg := sprintf("%s: deleting or replacing a %s is forbidden (tenant boundary, data or keys) -- offboarding? use the teardown pipeline", [rc.address, rc.type])
+}
+
 # --- Destroy threshold: large teardowns must be explicit. ---
 # The override is external data, never plan content: the deliberate teardown pipeline passes
 # `--data {"exceptions": {"allow_destroy_over_threshold": true}}` (see multi-tenant-config's opa-gate

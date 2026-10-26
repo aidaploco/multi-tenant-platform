@@ -18,6 +18,7 @@ two-sources-of-truth problem the platform avoids).
 | CMEK required on buckets | no Google-managed encryption |
 | KMS rotation_period required | no un-rotating keys |
 | required labels | `tenant`, `environment`, `data_classification`, `managed-by` |
+| no delete/replace of projects, KMS keys/key rings, buckets | one stray delete can't remove a tenant's boundary, data or keys; teardown override only |
 | destroy threshold | large teardowns must be explicitly overridden |
 
 ## Usage
