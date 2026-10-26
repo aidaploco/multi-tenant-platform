@@ -52,7 +52,7 @@ variable "enable_egress_alert" {
 variable "runbook_url" {
   description = "Runbook link embedded in alert documentation. Policy requires every alert to carry one."
   type        = string
-  default     = "https://github.com/<org>/platform-config/blob/main/docs/runbooks/observability.md"
+  default     = "https://github.com/<org>/multi-tenant-config/blob/main/docs/runbooks/observability.md"
 }
 
 variable "labels" {

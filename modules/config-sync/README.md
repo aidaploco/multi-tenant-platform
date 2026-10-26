@@ -1,7 +1,7 @@
 # config-sync
 
 Installs **Config Sync** on the shared runtime cluster via Fleet (`gke_hub`), pointed at the
-`platform-config` repo's `gitops/` directory (ADR-0012). The GitOps reconciliation loop that keeps
+`multi-tenant-config` repo's `gitops/` directory (ADR-0012). The GitOps reconciliation loop that keeps
 the cluster's tenant-isolation policy applied and self-healing.
 
 > **Reviewed, not live-verified.** Fleet/Config Sync need a real cluster to exercise; the mocked

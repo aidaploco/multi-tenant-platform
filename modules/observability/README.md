@@ -14,13 +14,13 @@ It does **not** create the log bucket (tenant bootstrap owns that) or notificati
 
 ```hcl
 module "landing_observability" {
-  source                = "git::https://github.com/<org>/platform-modules.git//modules/observability?ref=v1.0.0"
+  source                = "git::https://github.com/<org>/multi-tenant-platform.git//modules/observability?ref=v1.0.0"
   project_id            = module.project.project_id
   display_name          = module.landing.name
   metric_filter         = "resource.type = \"gcs_bucket\" AND metric.type = \"storage.googleapis.com/network/sent_bytes_count\""
   notification_channels = [module.tenant_channels.email_channel_id]
   log_bucket_id         = module.tenant_logs.bucket_id
-  runbook_url           = "https://github.com/<org>/platform-config/blob/main/docs/runbooks/gcs-egress.md"
+  runbook_url           = "https://github.com/<org>/multi-tenant-config/blob/main/docs/runbooks/gcs-egress.md"
   labels                = local.labels
 }
 ```
@@ -65,7 +65,7 @@ No modules.
 | <a name="input_metric_filter"></a> [metric\_filter](#input\_metric\_filter) | Monitoring filter selecting the primary time series for this resource. Has a sensible default per the caller's resource type. | `string` | n/a | yes |
 | <a name="input_notification_channels"></a> [notification\_channels](#input\_notification\_channels) | Notification channel IDs alerts fire to. Created once per tenant, not per resource (so this is passed in, never created here). | `list(string)` | `[]` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | Project that owns the monitored resource and these monitoring resources. | `string` | n/a | yes |
-| <a name="input_runbook_url"></a> [runbook\_url](#input\_runbook\_url) | Runbook link embedded in alert documentation. Policy requires every alert to carry one. | `string` | `"https://github.com/<org>/platform-config/blob/main/docs/runbooks/observability.md"` | no |
+| <a name="input_runbook_url"></a> [runbook\_url](#input\_runbook\_url) | Runbook link embedded in alert documentation. Policy requires every alert to carry one. | `string` | `"https://github.com/<org>/multi-tenant-config/blob/main/docs/runbooks/observability.md"` | no |
 
 ## Outputs
 

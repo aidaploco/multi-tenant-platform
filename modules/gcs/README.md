@@ -10,7 +10,7 @@ to Google-managed encryption. Pair it with `kms-tenant`:
 
 ```hcl
 module "landing" {
-  source      = "git::https://github.com/<org>/platform-modules.git//modules/gcs?ref=v1.0.0"
+  source      = "git::https://github.com/<org>/multi-tenant-platform.git//modules/gcs?ref=v1.0.0"
   project_id  = module.project.project_id
   name        = "abf-dev-landing"
   location    = "europe-west4"

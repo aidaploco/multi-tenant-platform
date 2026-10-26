@@ -224,7 +224,7 @@ __marimo__/
 **/.terraform/*
 # Lock files are deliberately NOT committed in this repo: it contains only
 # reusable child modules, so the CONSUMING configuration's lock file governs
-# provider versions. (Root configs/Terragrunt roots in platform-config DO
+# provider versions. (Root configs/Terragrunt roots in multi-tenant-config DO
 # commit theirs.)
 .terraform.lock.hcl
 # State must never live in git.

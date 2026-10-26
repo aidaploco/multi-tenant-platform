@@ -4,8 +4,8 @@ OPA/Conftest **pre-flight policy gate**. These run in CI against
 `terraform show -json <plan>` output. A plan that trips any `deny` rule never reaches
 apply — not even in dev. OPA is the pre-flight check; Org Policy is the runtime backstop.
 
-Authored here in `platform-modules` as the **single source of truth** and consumed by
-`platform-config`'s CI (pulled by pinned version, never copy-pasted — that would recreate the
+Authored here in `multi-tenant-platform` as the **single source of truth** and consumed by
+`multi-tenant-config`'s CI (pulled by pinned version, never copy-pasted — that would recreate the
 two-sources-of-truth problem the platform avoids).
 
 ## Rules

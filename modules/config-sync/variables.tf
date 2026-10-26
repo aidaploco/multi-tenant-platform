@@ -19,7 +19,7 @@ variable "cluster_id" {
 }
 
 variable "sync_repo" {
-  description = "Git repo Config Sync reads (the platform-config repo)."
+  description = "Git repo Config Sync reads (the multi-tenant-config repo)."
   type        = string
 }
 

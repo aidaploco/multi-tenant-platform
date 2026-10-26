@@ -2,7 +2,7 @@
 
 Stamps one tenant's namespace on the shared runtime cluster with the full isolation contract
 (ADR-0013) — the Terraform half of "the cluster is multi-tenant safe". Mirrors the reference
-contract in `docs/runtime/tenant-namespace-contract/` in `platform-config` (kept OUTSIDE the
+contract in `docs/runtime/tenant-namespace-contract/` in `multi-tenant-config` (kept OUTSIDE the
 Config-Sync-synced tree, so Terraform is the only controller managing these objects).
 
 > **Kubernetes provider module** — the consuming root configures the `kubernetes` provider (via

@@ -49,7 +49,7 @@ resource "kubernetes_network_policy" "allow_same_namespace" {
   }
 }
 
-# Egress: default-deny + an explicit allow-list (ADR-0022 D22-4 in platform-config). The two
+# Egress: default-deny + an explicit allow-list (ADR-0022 D22-4 in multi-tenant-config). The two
 # ingress policies above stop other tenants reaching IN; neither touches egress, so — checked
 # directly, not assumed — every pod here could reach OUT anywhere, including other tenants'
 # pods, this cluster's own control plane, and (on real GKE) the metadata server. This closes
@@ -192,13 +192,13 @@ resource "kubernetes_service_account" "workload" {
 }
 
 # Tenant humans get READ (built-in `view`) plus the narrow operate role below — NOT `edit`
-# (ADR-0023 in platform-config). `edit` includes create/update/delete on NetworkPolicies, and
+# (ADR-0023 in multi-tenant-config). `edit` includes create/update/delete on NetworkPolicies, and
 # NetworkPolicies are additive-permissive: one tenant-created allow-all egress policy — or a
 # plain delete of default-deny-egress — would quietly defeat the baseline above. RBAC is the
 # PRIMARY layer here because it is the only one that covers DELETE: Gatekeeper's webhook only
 # intercepts CREATE/UPDATE (checked against the live webhook config, not assumed). The
 # admission backstop for other write paths is the deny-tenant-netpol constraint in
-# platform-config gitops/.
+# multi-tenant-config gitops/.
 resource "kubernetes_role_binding" "viewers" {
   metadata {
     name      = "tenant-viewers"

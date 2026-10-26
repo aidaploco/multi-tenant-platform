@@ -9,7 +9,7 @@ Everything else in the platform runs *inside* a project created here.
 
 ```hcl
 module "project" {
-  source          = "git::https://github.com/<org>/platform-modules.git//modules/gcp-project?ref=v1.0.0"
+  source          = "git::https://github.com/<org>/multi-tenant-platform.git//modules/gcp-project?ref=v1.0.0"
   project_id      = "abf-dev-7f3a"
   display_name    = "ABF Analytics dev"
   folder_id       = "folders/123456789"

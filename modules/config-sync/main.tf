@@ -1,5 +1,5 @@
 # config-sync: installs Config Sync on the shared runtime cluster via Fleet, pointed at the
-# platform-config gitops/ directory (ADR-0012). This is the GitOps reconciliation loop that keeps
+# multi-tenant-config gitops/ directory (ADR-0012). This is the GitOps reconciliation loop that keeps
 # the cluster's tenant-isolation policy applied and self-healing.
 #
 # What this module does NOT do: create the in-cluster `git-creds` secret (needs cluster access —

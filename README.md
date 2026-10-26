@@ -1,11 +1,11 @@
-# platform-modules
+# multi-tenant-platform
 
 Reusable, **versioned** Terraform modules for the multi-tenant GCP data platform. This is
-**REPO 1** of two (see [ADR-0001] in the `platform-config` repo for the full architecture):
+**REPO 1** of two (see [ADR-0001] in the `multi-tenant-config` repo for the full architecture):
 
-- **`platform-modules`** (this repo) — the building blocks. No tenant- or environment-specific
+- **`multi-tenant-platform`** (this repo) — the building blocks. No tenant- or environment-specific
   values live here. Platform team owns it.
-- **`platform-config`** — the tenant registry (one YAML per tenant), Terraform deploy roots,
+- **`multi-tenant-config`** — the tenant registry (one YAML per tenant), Terraform deploy roots,
   CI/CD, and policies. Consumes these modules by **pinned git tag**, never `main`.
 
 ## Consuming a module
@@ -14,7 +14,7 @@ Pin to a released tag — never to `main`. The tag is the stability contract:
 
 ```hcl
 module "project" {
-  source = "git::https://github.com/<org>/platform-modules.git//modules/gcp-project?ref=v1.0.0"
+  source = "git::https://github.com/<org>/multi-tenant-platform.git//modules/gcp-project?ref=v1.0.0"
   # ...
 }
 ```
@@ -35,10 +35,10 @@ module "project" {
 | [`tenant-namespace`](modules/tenant-namespace) | Per-tenant namespace isolation: default-deny, quota, WI SA, RBAC (kubernetes provider) | ✅ |
 
 > This is an MVP reference implementation. The table above is current, not aspirational — every
-> module in it is built, tested, and consumed at a real version pin (see `platform-config`'s
+> module in it is built, tested, and consumed at a real version pin (see `multi-tenant-config`'s
 > `VERSIONS.md`). What's still outside this vertical slice: `vpc-sc`, `cloud-sql`,
 > `bigquery`/`pubsub` (the `data-unit` archetype's dependencies) — deferred to activation, not
-> forgotten (`platform-config`'s `docs/PLAN.md`).
+> forgotten (`multi-tenant-config`'s `docs/PLAN.md`).
 
 ## Conventions
 
@@ -64,8 +64,8 @@ terraform test                       # unit tests with a MOCKED provider — no 
 ```
 
 Versioning is **manual**: tags are cut by hand (`git tag vX.Y.Z` + push) after a merge to
-`main`, recorded in `platform-config`'s `VERSIONS.md` — no release automation exists yet.
+`main`, recorded in `multi-tenant-config`'s `VERSIONS.md` — no release automation exists yet.
 Semantic-release on conventional commits is a real nice-to-have, tracked as event-gated in
-`platform-config`'s `docs/PLAN.md`, not something already running.
+`multi-tenant-config`'s `docs/PLAN.md`, not something already running.
 
 [ADR-0001]: ../multi-tenant-config/docs/adr/0001-platform-architecture.md
