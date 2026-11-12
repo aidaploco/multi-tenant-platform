@@ -1,0 +1,22 @@
+// DELIBERATELY INSECURE. This is the Trivy job's own self-test fixture; it is never applied.
+//
+// Why it exists: a scanner that can't fail is decoration. The job scans this file first and
+// asserts Trivy reports the rule below, so "no findings in modules/" can only mean the modules
+// are clean — not that Trivy broke, lost its rules, or was suppressed into silence.
+//
+// Why `.tf.fixture` and not `.tf`: tflint --recursive and terraform tooling would pick up a
+// `.tf` here. The job copies it to a scratch dir as `main.tf` before scanning.
+
+# AVD-GCP-0017: Cloud SQL instance with a public IP.
+resource "google_sql_database_instance" "self_test_public" {
+  name             = "self-test-must-never-be-applied"
+  database_version = "POSTGRES_15"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled = true
+    }
+  }
+}

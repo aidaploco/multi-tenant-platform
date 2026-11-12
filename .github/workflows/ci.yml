@@ -100,13 +100,49 @@ jobs:
       - uses: terraform-linters/setup-tflint@v4
       - run: tflint --recursive
 
+  # Static security scan of the Terraform (public IPs, open firewalls, unencrypted storage...).
+  # Pinned release + checksum, no third-party action. The self-test runs FIRST: it scans a
+  # deliberately insecure fixture and requires Trivy to report the expected rule, so a green scan
+  # of modules/ means "clean", not "Trivy is broken or silenced". No ignore file exists today
+  # (the modules scan clean). If one is ever added, read it from `main` rather than the PR, or a
+  # PR could suppress its own finding.
+  trivy:
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: install trivy
+        run: |
+          set -euo pipefail
+          ver=0.76.1
+          sha=c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0
+          curl -fsSL -o "$RUNNER_TEMP/trivy.tar.gz" "https://github.com/aquasecurity/trivy/releases/download/v${ver}/trivy_${ver}_Linux-64bit.tar.gz"
+          echo "${sha}  $RUNNER_TEMP/trivy.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/trivy.tar.gz" -C "$RUNNER_TEMP" trivy
+      - name: self-test (the fixture MUST be flagged)
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/selftest"
+          cp .github/trivy/selftest.tf.fixture "$RUNNER_TEMP/selftest/main.tf"
+          "$RUNNER_TEMP/trivy" config --skip-version-check --severity HIGH,CRITICAL \
+            --format json --output "$RUNNER_TEMP/selftest.json" "$RUNNER_TEMP/selftest"
+          ids=$(jq -r '[.Results[]? | (.Misconfigurations // [])[] | .ID] | unique | .[]' "$RUNNER_TEMP/selftest.json")
+          echo "self-test reported: ${ids:-<none>}"
+          if ! printf '%s\n' "$ids" | grep -qxE '(AVD-)?GCP-0017'; then
+            echo "::error::Trivy did not flag the self-test fixture (expected GCP-0017). The scan below can no longer be trusted."
+            exit 1
+          fi
+      - name: scan (HIGH/CRITICAL fail the build)
+        run: |
+          "$RUNNER_TEMP/trivy" config --skip-version-check --severity HIGH,CRITICAL --exit-code 1 .
+
   # The single required check. Branch protection should require ONLY this job: it fails if any
   # job above failed, was cancelled or was skipped. `if: always()` is load-bearing — without it a
   # failed upstream job would make this one skip, and a skipped required check can read as passed.
   # Requiring the individual jobs instead means a renamed or removed job silently drops out of
   # "required". Add every new job to `needs` below.
   ci-success:
-    needs: [gitleaks, actionlint, fmt, test, policy, tflint]
+    needs: [gitleaks, actionlint, fmt, test, policy, tflint, trivy]
     if: always()
     runs-on: ubuntu-latest
     steps:
