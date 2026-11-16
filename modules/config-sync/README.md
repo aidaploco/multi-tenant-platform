@@ -43,6 +43,13 @@ module "config_sync" {
 
 `membership_id`, `policy_dir`, `git_token_secret_id`.
 
+## Required APIs
+
+`gkehub.googleapis.com`, `anthosconfigmanagement.googleapis.com`, and (when
+`enable_policy_controller` is true) `anthospolicycontroller.googleapis.com` must be enabled on
+the project. Policy Controller is installed as its own Fleet feature, because the
+ConfigManagement API no longer accepts it inline for current versions.
+
 ## Tests
 
 ```bash
