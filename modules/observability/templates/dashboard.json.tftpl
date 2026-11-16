@@ -1,13 +1,15 @@
 {
   "displayName": ${jsonencode(display_name)},
   "gridLayout": {
-    "columns": 1,
+    "columns": "1",
     "widgets": [
       {
         "title": ${jsonencode("${display_name} — primary metric")},
         "xyChart": {
           "dataSets": [
             {
+              "plotType": "LINE",
+              "targetAxis": "Y1",
               "timeSeriesQuery": {
                 "timeSeriesFilter": {
                   "filter": ${jsonencode(metric_filter)},
