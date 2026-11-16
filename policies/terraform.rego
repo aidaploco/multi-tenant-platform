@@ -103,6 +103,16 @@ has_cmek(rc) if {
 	enc.default_kms_key_name != null
 }
 
+# The key is created in the SAME plan (a new tenant: kms-tenant + gcs together), so its ID is
+# unknown until apply and Terraform omits it from `after`. An encryption block whose key name is
+# marked unknown IS a CMEK reference; without this a new tenant could never pass the gate.
+# (Confirmed against a real plan.) A bucket with no encryption block has no entry here and is
+# still denied.
+has_cmek(rc) if {
+	some enc in rc.change.after_unknown.encryption
+	enc.default_kms_key_name == true
+}
+
 # --- KMS keys must rotate. ---
 deny contains msg if {
 	some rc in upserts

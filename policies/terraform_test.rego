@@ -58,6 +58,26 @@ test_denies_bucket_without_cmek if {
 	count(d) == 1
 }
 
+# A new tenant creates the key and the bucket in one plan, so the key ID is unknown at plan time.
+# Terraform leaves it out of `after` and flags it in `after_unknown` -- that is still CMEK.
+test_allows_bucket_with_plan_time_unknown_cmek_key if {
+	bucket := json.patch(compliant_bucket, [
+		{"op": "replace", "path": "/change/after/encryption", "value": [{}]},
+		{"op": "add", "path": "/change/after_unknown", "value": {"encryption": [{"default_kms_key_name": true}]}},
+	])
+	count(deny) == 0 with input as {"resource_changes": [bucket]}
+}
+
+# An unknown value elsewhere must not be mistaken for a key: no encryption block is still denied.
+test_denies_bucket_without_cmek_even_with_unrelated_unknowns if {
+	bucket := json.patch(compliant_bucket, [
+		{"op": "replace", "path": "/change/after/encryption", "value": []},
+		{"op": "add", "path": "/change/after_unknown", "value": {"id": true, "encryption": []}},
+	])
+	d := deny with input as {"resource_changes": [bucket]}
+	count(d) == 1
+}
+
 test_denies_missing_label if {
 	bucket := json.patch(compliant_bucket, [{"op": "remove", "path": "/change/after/labels/data_classification"}])
 	d := deny with input as {"resource_changes": [bucket]}
