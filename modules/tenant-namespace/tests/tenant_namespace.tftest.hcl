@@ -66,3 +66,24 @@ run "operate_role_never_grants_networkpolicy_write" {
     error_message = "Tenants must keep Secret rights — the ADR-0020 secret_ref contract has a human pre-create app Secrets."
   }
 }
+
+# Regression for a bug found on a real Autopilot cluster: the egress policy blocked NodeLocal DNS
+# (169.254.20.10, host-network, invisible to pod selectors) and the GKE metadata server
+# (169.254.169.254:80), so no pod could resolve a name or obtain Workload Identity credentials.
+run "egress_allows_node_local_dns_and_metadata_server" {
+  command = plan
+  assert {
+    condition = anytrue([
+      for e in kubernetes_network_policy.default_deny_egress.spec[0].egress :
+      length(e.to) == 1 && length(e.to[0].ip_block) == 1 && e.to[0].ip_block[0].cidr == "169.254.20.10/32"
+    ])
+    error_message = "Egress must allow NodeLocal DNS (169.254.20.10/32) or DNS fails on Autopilot."
+  }
+  assert {
+    condition = anytrue([
+      for e in kubernetes_network_policy.default_deny_egress.spec[0].egress :
+      length(e.to) == 1 && length(e.to[0].ip_block) == 1 && e.to[0].ip_block[0].cidr == "169.254.169.254/32"
+    ])
+    error_message = "Egress must allow the GKE metadata server (169.254.169.254/32) or Workload Identity breaks."
+  }
+}

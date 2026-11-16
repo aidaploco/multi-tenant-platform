@@ -85,6 +85,43 @@ resource "kubernetes_network_policy" "default_deny_egress" {
       }
     }
 
+    # DNS on GKE Autopilot / NodeLocal DNSCache. Pods resolve through the node-local-dns agent at
+    # 169.254.20.10, which runs in the host network namespace, so the kube-dns pod selector above
+    # never matches it. Verified on a real Autopilot cluster: with only the selector rule, every
+    # lookup fails (and with it all internet egress). The /32 is link-local to the pod's own node.
+    egress {
+      to {
+        ip_block {
+          cidr = "169.254.20.10/32"
+        }
+      }
+      ports {
+        port     = "53"
+        protocol = "UDP"
+      }
+      ports {
+        port     = "53"
+        protocol = "TCP"
+      }
+    }
+
+    # The GKE metadata server, which is how Workload Identity hands a pod its tenant service
+    # account's token (Dataplane V2 / Autopilot: 169.254.169.254 port 80). Without it every
+    # agent-unit loses its identity. This is NOT the node's metadata: with Workload Identity on,
+    # the pod sees only its own KSA-bound identity. The wider 169.254.0.0/16 stays excluded from
+    # the internet rule below. Verified on a real Autopilot cluster.
+    egress {
+      to {
+        ip_block {
+          cidr = "169.254.169.254/32"
+        }
+      }
+      ports {
+        port     = "80"
+        protocol = "TCP"
+      }
+    }
+
     # A tenant's own pods can talk to each other (egress-side mirror of allow-same-namespace).
     egress {
       to {
