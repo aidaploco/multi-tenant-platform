@@ -19,8 +19,7 @@ module "landing_observability" {
   display_name          = module.landing.name
   metric_filter         = "resource.type = \"gcs_bucket\" AND metric.type = \"storage.googleapis.com/network/sent_bytes_count\""
   notification_channels = [module.tenant_channels.email_channel_id]
-  log_bucket_id         = module.tenant_logs.bucket_id
-  runbook_url           = "https://github.com/aidaploco/multi-tenant-config/blob/main/docs/runbooks/gcs-egress.md"
+  runbook_url           = "https://github.com/aidaploco/multi-tenant-config/blob/main/docs/runbooks/observability.md"
   labels                = local.labels
 }
 ```
