@@ -4,7 +4,7 @@
 # nodes (no public node IPs; egress via the shared-vpc NAT). Control-plane endpoint locked by
 # master_authorized_networks (default none). Workload Identity on — this is the pool the tenant
 # agent-unit SAs bind to. Pod-level tenant isolation (default-deny NetworkPolicy) is applied by
-# Config Sync in milestone part 4, not here.
+# the tenant-namespace module, not here.
 
 locals {
   labels = merge(var.labels, { "managed-by" = "terraform" })

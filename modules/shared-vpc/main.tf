@@ -3,7 +3,8 @@
 # One VPC per runtime-<env> project. Private by default: Private Google Access on, no external
 # IPs, egress ONLY via Cloud NAT, ingress default-deny with admin access via Google IAP only.
 # Pod-level east-west isolation between tenants is the Kubernetes default-deny NetworkPolicy
-# (applied by Config Sync), NOT this module — this is the VPC perimeter + egress layer.
+# (applied by the tenant-namespace module), NOT this module — this is the VPC perimeter + egress
+# layer.
 
 resource "google_compute_network" "this" {
   project                 = var.project_id

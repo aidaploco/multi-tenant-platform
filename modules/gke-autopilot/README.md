@@ -5,9 +5,10 @@ The shared runtime cluster (ADR-0009 / ADR-0001 D13): one regional **Autopilot**
 small team. Private nodes (egress via the shared-vpc NAT), control-plane locked to authorized
 networks, Workload Identity on.
 
-> **Layering:** this is the cluster. Per-tenant namespaces with default-deny `NetworkPolicy`,
-> quotas, and Policy Controller constraints are applied by **Config Sync** (milestone part 4), not
-> here. Do not run two tenants' workloads here until part 4.
+> **Layering:** this is the cluster. Per-tenant namespaces with default-deny `NetworkPolicy` and
+> quotas come from the [`tenant-namespace`](../tenant-namespace) module; Policy Controller
+> constraints are applied by **Config Sync** (see [`config-sync`](../config-sync)). None of that is
+> done here, so do not run two tenants' workloads on this cluster without it.
 
 ## Usage
 

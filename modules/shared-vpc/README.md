@@ -6,7 +6,8 @@ Cloud NAT only, default-deny ingress, admin access via Google IAP only, VPC-nati
 ranges for GKE.
 
 > **Layering:** this is the VPC perimeter + egress layer. Pod-level isolation *between tenants* is
-> the Kubernetes default-deny `NetworkPolicy` (applied by Config Sync), not this module.
+> the Kubernetes default-deny `NetworkPolicy` (applied by the `tenant-namespace` module), not this
+> module.
 > No `labels` — VPC networks, subnets, and firewalls don't carry them.
 
 ## Usage
