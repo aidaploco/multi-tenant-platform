@@ -14,13 +14,13 @@ It does **not** create the log bucket (tenant bootstrap owns that) or notificati
 
 ```hcl
 module "landing_observability" {
-  source                = "git::https://github.com/<org>/multi-tenant-platform.git//modules/observability?ref=v1.0.0"
+  source                = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/observability?ref=v0.1.0"
   project_id            = module.project.project_id
   display_name          = module.landing.name
   metric_filter         = "resource.type = \"gcs_bucket\" AND metric.type = \"storage.googleapis.com/network/sent_bytes_count\""
   notification_channels = [module.tenant_channels.email_channel_id]
   log_bucket_id         = module.tenant_logs.bucket_id
-  runbook_url           = "https://github.com/<org>/multi-tenant-config/blob/main/docs/runbooks/gcs-egress.md"
+  runbook_url           = "https://github.com/aidaploco/multi-tenant-config/blob/main/docs/runbooks/gcs-egress.md"
   labels                = local.labels
 }
 ```
