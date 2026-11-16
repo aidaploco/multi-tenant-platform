@@ -14,17 +14,19 @@ networks, Workload Identity on.
 
 ```hcl
 module "cluster" {
-  source = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/gke-autopilot?ref=v0.5.0"
+  source = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/gke-autopilot?ref=v0.14.0"
 
-  project_id          = "runtime-dev"
-  region              = "europe-west4"
-  network             = module.vpc.network_id
-  subnetwork          = module.vpc.subnetwork_id
-  pods_range_name     = module.vpc.pods_range_name
-  services_range_name = module.vpc.services_range_name
-  master_ipv4_cidr    = "172.16.0.0/28"
-  deletion_protection = true
-  labels              = local.labels
+  project_id              = "runtime-dev"
+  region                  = "europe-west4"
+  network                 = module.vpc.network_id
+  subnetwork              = module.vpc.subnetwork_id
+  pods_range_name         = module.vpc.pods_range_name
+  services_range_name     = module.vpc.services_range_name
+  master_ipv4_cidr        = "172.16.0.0/28"
+  database_encryption_key = "projects/runtime-dev/locations/europe-west4/keyRings/runtime/cryptoKeys/gke-secrets"
+  boot_disk_kms_key       = "projects/runtime-dev/locations/europe-west4/keyRings/runtime/cryptoKeys/gke-boot-disk"
+  deletion_protection     = true
+  labels                  = local.labels
 }
 ```
 

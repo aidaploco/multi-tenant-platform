@@ -25,7 +25,7 @@ Config-Sync-synced tree, so Terraform is the only controller managing these obje
 
 ```hcl
 module "namespace" {
-  source = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/tenant-namespace?ref=v0.8.0"
+  source = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/tenant-namespace?ref=v0.13.0"
 
   namespace   = "abf"
   owner_group = "abf-data-engineers@company.com"
@@ -44,6 +44,7 @@ module "namespace" {
 | `owner_group` | string | — | Group granted `view` + operate (Secrets/logs/exec/port-forward) in this namespace only. |
 | `service_accounts` | map(string) | `{}` | KSA name → GCP SA email (per agent-unit). |
 | `quota` | object | sensible | ResourceQuota hard limits. |
+| `extra_egress_cidrs` | list(object) | `[]` | Extra egress allow-rules (`cidr`, `port`, optional `protocol`) beyond the baseline (ADR-0022). Narrow, documented exceptions only; never set against a real GKE cluster. |
 | `labels` | map | — | Must include tenant/environment/data_classification. |
 
 ## Outputs
