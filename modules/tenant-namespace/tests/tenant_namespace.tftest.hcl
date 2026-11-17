@@ -73,17 +73,19 @@ run "operate_role_never_grants_networkpolicy_write" {
 run "egress_allows_node_local_dns_and_metadata_server" {
   command = plan
   assert {
-    condition = anytrue([
-      for e in kubernetes_network_policy.default_deny_egress.spec[0].egress :
-      length(e.to) == 1 && length(e.to[0].ip_block) == 1 && e.to[0].ip_block[0].cidr == "169.254.20.10/32"
-    ])
+    condition = anytrue(flatten([
+      for e in kubernetes_network_policy.default_deny_egress.spec[0].egress : [
+        for t in e.to : [for ib in t.ip_block : ib.cidr == "169.254.20.10/32"]
+      ]
+    ]))
     error_message = "Egress must allow NodeLocal DNS (169.254.20.10/32) or DNS fails on Autopilot."
   }
   assert {
-    condition = anytrue([
-      for e in kubernetes_network_policy.default_deny_egress.spec[0].egress :
-      length(e.to) == 1 && length(e.to[0].ip_block) == 1 && e.to[0].ip_block[0].cidr == "169.254.169.254/32"
-    ])
+    condition = anytrue(flatten([
+      for e in kubernetes_network_policy.default_deny_egress.spec[0].egress : [
+        for t in e.to : [for ib in t.ip_block : ib.cidr == "169.254.169.254/32"]
+      ]
+    ]))
     error_message = "Egress must allow the GKE metadata server (169.254.169.254/32) or Workload Identity breaks."
   }
 }

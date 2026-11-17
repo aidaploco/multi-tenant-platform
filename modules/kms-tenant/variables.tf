@@ -30,7 +30,9 @@ variable "rotation_period" {
   default     = "7776000s" # 90 days
 
   validation {
-    condition     = can(regex("^[0-9]+s$", var.rotation_period)) && tonumber(trimsuffix(var.rotation_period, "s")) >= 86400
+    # A conditional, not `&&`: Terraform 1.9 evaluates both sides of `&&`, so tonumber() would run on
+    # a malformed value like "90d" and raise a function error instead of this validation message.
+    condition     = can(regex("^[0-9]+s$", var.rotation_period)) ? tonumber(trimsuffix(var.rotation_period, "s")) >= 86400 : false
     error_message = "rotation_period must be a seconds string like \"7776000s\" and at least 86400s (1 day)."
   }
 }
