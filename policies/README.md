@@ -15,7 +15,7 @@ Every rule is a `deny`: any one of them blocks the plan.
 | Rule | Enforces |
 | ---- | -------- |
 | no service-account keys | keyless identity only |
-| no `roles/owner` / `roles/editor` grants | on project, folder, org and service-account IAM members (`roles/viewer` is allowed: the read-only CI planner uses it) |
+| no `roles/owner` / `roles/editor` grants | on project, folder, org, service-account, KMS-key and bucket grants, both `_member` and `_binding` forms (`roles/viewer` is allowed: the read-only CI planner uses it). `*_iam_policy` resources are not inspected |
 | no SA-key-minting roles | `serviceAccountKeyAdmin` / `serviceAccountKeyCreator` can never be granted |
 | uniform bucket-level access | no GCS ACLs |
 | public access prevention enforced | no public buckets |
