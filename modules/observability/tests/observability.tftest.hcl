@@ -80,3 +80,13 @@ run "threshold_is_overridable" {
     error_message = "Callers must be able to override the threshold."
   }
 }
+
+# The threshold is documented as bytes per 5-minute window, which only holds with a DELTA aligner.
+# ALIGN_RATE would make it bytes per second and the default effectively unreachable.
+run "alert_sums_bytes_per_window" {
+  command = plan
+  assert {
+    condition     = google_monitoring_alert_policy.egress[0].conditions[0].condition_threshold[0].aggregations[0].per_series_aligner == "ALIGN_DELTA"
+    error_message = "The egress alert must use ALIGN_DELTA so egress_threshold_bytes is bytes per alignment window, not per second."
+  }
+}

@@ -42,9 +42,12 @@ resource "google_monitoring_alert_policy" "egress" {
       threshold_value = var.egress_threshold_bytes
       duration        = var.alert_duration
 
+      # ALIGN_DELTA sums the DELTA metric over each 300s window, so egress_threshold_bytes means
+      # "bytes per 5-minute window" as documented. (ALIGN_RATE gives bytes PER SECOND, which made
+      # the 1 GiB default a ~1 GiB/s threshold that would effectively never fire.)
       aggregations {
         alignment_period   = "300s"
-        per_series_aligner = "ALIGN_RATE"
+        per_series_aligner = "ALIGN_DELTA"
       }
     }
   }
