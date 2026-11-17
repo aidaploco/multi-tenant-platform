@@ -119,6 +119,47 @@ test_denies_primitive_role if {
 	count(d) == 1
 }
 
+# The same grants through the resource types the gate used not to look at.
+test_denies_primitive_role_via_every_grant_type if {
+	every t in {
+		"google_project_iam_binding", "google_folder_iam_binding", "google_organization_iam_binding",
+		"google_service_account_iam_binding", "google_kms_crypto_key_iam_member",
+		"google_kms_crypto_key_iam_binding", "google_storage_bucket_iam_member",
+		"google_storage_bucket_iam_binding",
+	} {
+		d := deny with input as {"resource_changes": [{
+			"address": sprintf("%s.bad", [t]),
+			"type": t,
+			"change": {"actions": ["create"], "after": {"role": "roles/owner"}},
+		}]}
+		count(d) == 1
+	}
+}
+
+test_denies_sa_key_role_via_binding if {
+	d := deny with input as {"resource_changes": [{
+		"address": "google_project_iam_binding.bad",
+		"type": "google_project_iam_binding",
+		"change": {"actions": ["create"], "after": {"role": "roles/iam.serviceAccountKeyAdmin"}},
+	}]}
+	count(d) == 1
+}
+
+test_allows_least_privilege_via_binding_and_key_member if {
+	count(deny) == 0 with input as {"resource_changes": [
+		{
+			"address": "google_project_iam_binding.ok",
+			"type": "google_project_iam_binding",
+			"change": {"actions": ["create"], "after": {"role": "roles/storage.objectViewer"}},
+		},
+		{
+			"address": "module.gcs.google_kms_crypto_key_iam_member.gcs_cmek",
+			"type": "google_kms_crypto_key_iam_member",
+			"change": {"actions": ["create"], "after": {"role": "roles/cloudkms.cryptoKeyEncrypterDecrypter"}},
+		},
+	]}
+}
+
 test_denies_sa_key_role_grant if {
 	d := deny with input as {"resource_changes": [{
 		"address": "module.identity.google_project_iam_member.roles[\"x\"]",
