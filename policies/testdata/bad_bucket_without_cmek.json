@@ -1,0 +1,561 @@
+{
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "google_monitoring_notification_channel.owner",
+      "mode": "managed",
+      "type": "google_monitoring_notification_channel",
+      "name": "owner",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "description": null,
+          "display_name": "sbx owner",
+          "enabled": true,
+          "force_delete": false,
+          "labels": {
+            "email_address": "oncall@example.com"
+          },
+          "project": "abf-dev-7f3a",
+          "sensitive_labels": [],
+          "timeouts": null,
+          "type": "email",
+          "user_labels": null
+        },
+        "after_unknown": {
+          "id": true,
+          "labels": {},
+          "name": true,
+          "sensitive_labels": [],
+          "verification_status": true
+        }
+      }
+    },
+    {
+      "address": "module.agent.google_project_iam_member.roles[\"roles/storage.objectViewer\"]",
+      "mode": "managed",
+      "type": "google_project_iam_member",
+      "name": "roles",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "member": "serviceAccount:sbx-search-a1@abf-dev-7f3a.iam.gserviceaccount.com",
+          "project": "abf-dev-7f3a",
+          "role": "roles/storage.objectViewer"
+        },
+        "after_unknown": {
+          "condition": [],
+          "etag": true,
+          "id": true
+        }
+      }
+    },
+    {
+      "address": "module.agent.google_service_account.this",
+      "mode": "managed",
+      "type": "google_service_account",
+      "name": "this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "account_id": "sbx-search-a1",
+          "create_ignore_already_exists": null,
+          "description": "Runtime identity managed by the platform (agent-unit). Keyless — no JSON keys.",
+          "disabled": false,
+          "display_name": "sandbox agent",
+          "email": "sbx-search-a1@abf-dev-7f3a.iam.gserviceaccount.com",
+          "member": "serviceAccount:sbx-search-a1@abf-dev-7f3a.iam.gserviceaccount.com",
+          "project": "abf-dev-7f3a",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "id": true,
+          "name": true,
+          "unique_id": true
+        }
+      }
+    },
+    {
+      "address": "module.bucket.google_kms_crypto_key_iam_member.gcs_cmek",
+      "mode": "managed",
+      "type": "google_kms_crypto_key_iam_member",
+      "name": "gcs_cmek",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "condition": [],
+          "member": "serviceAccount:service-123456789012@gs-project-accounts.iam.gserviceaccount.com",
+          "role": "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+        },
+        "after_unknown": {
+          "condition": [],
+          "crypto_key_id": true,
+          "etag": true,
+          "id": true
+        }
+      }
+    },
+    {
+      "address": "module.bucket.google_storage_bucket.this",
+      "mode": "managed",
+      "type": "google_storage_bucket",
+      "name": "this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "autoclass": [],
+          "cors": [],
+          "custom_placement_config": [],
+          "default_event_based_hold": null,
+          "effective_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "enable_object_retention": null,
+          "encryption": [],
+          "force_destroy": true,
+          "hierarchical_namespace": [],
+          "ip_filter": [],
+          "labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "lifecycle_rule": [],
+          "location": "EUROPE-WEST4",
+          "logging": [],
+          "name": "abf-dev-7f3a-sbx-landing-a1",
+          "project": "abf-dev-7f3a",
+          "public_access_prevention": "enforced",
+          "requester_pays": null,
+          "retention_policy": [],
+          "storage_class": "STANDARD",
+          "terraform_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "timeouts": null,
+          "uniform_bucket_level_access": true,
+          "versioning": [
+            {
+              "enabled": true
+            }
+          ]
+        },
+        "after_unknown": {
+          "autoclass": [],
+          "cors": [],
+          "custom_placement_config": [],
+          "effective_labels": {},
+          "encryption": [],
+          "hierarchical_namespace": [],
+          "id": true,
+          "ip_filter": [],
+          "labels": {},
+          "lifecycle_rule": [],
+          "logging": [],
+          "project_number": true,
+          "retention_policy": [],
+          "rpo": true,
+          "self_link": true,
+          "soft_delete_policy": true,
+          "terraform_labels": {},
+          "time_created": true,
+          "updated": true,
+          "url": true,
+          "versioning": [
+            {}
+          ],
+          "website": true
+        }
+      }
+    },
+    {
+      "address": "module.keys.google_kms_crypto_key.this[\"bq\"]",
+      "mode": "managed",
+      "type": "google_kms_crypto_key",
+      "name": "this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "effective_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "name": "bq",
+          "purpose": "ENCRYPT_DECRYPT",
+          "rotation_period": "7776000s",
+          "skip_initial_version_creation": null,
+          "terraform_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "timeouts": null,
+          "version_template": [
+            {
+              "algorithm": "GOOGLE_SYMMETRIC_ENCRYPTION",
+              "protection_level": "SOFTWARE"
+            }
+          ]
+        },
+        "after_unknown": {
+          "crypto_key_backend": true,
+          "destroy_scheduled_duration": true,
+          "effective_labels": {},
+          "id": true,
+          "import_only": true,
+          "key_ring": true,
+          "labels": {},
+          "primary": true,
+          "terraform_labels": {},
+          "version_template": [
+            {}
+          ]
+        }
+      }
+    },
+    {
+      "address": "module.keys.google_kms_crypto_key.this[\"gcs\"]",
+      "mode": "managed",
+      "type": "google_kms_crypto_key",
+      "name": "this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "effective_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "name": "gcs",
+          "purpose": "ENCRYPT_DECRYPT",
+          "rotation_period": "7776000s",
+          "skip_initial_version_creation": null,
+          "terraform_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "timeouts": null,
+          "version_template": [
+            {
+              "algorithm": "GOOGLE_SYMMETRIC_ENCRYPTION",
+              "protection_level": "SOFTWARE"
+            }
+          ]
+        },
+        "after_unknown": {
+          "crypto_key_backend": true,
+          "destroy_scheduled_duration": true,
+          "effective_labels": {},
+          "id": true,
+          "import_only": true,
+          "key_ring": true,
+          "labels": {},
+          "primary": true,
+          "terraform_labels": {},
+          "version_template": [
+            {}
+          ]
+        }
+      }
+    },
+    {
+      "address": "module.keys.google_kms_crypto_key.this[\"secret\"]",
+      "mode": "managed",
+      "type": "google_kms_crypto_key",
+      "name": "this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "effective_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "name": "secret",
+          "purpose": "ENCRYPT_DECRYPT",
+          "rotation_period": "7776000s",
+          "skip_initial_version_creation": null,
+          "terraform_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "timeouts": null,
+          "version_template": [
+            {
+              "algorithm": "GOOGLE_SYMMETRIC_ENCRYPTION",
+              "protection_level": "SOFTWARE"
+            }
+          ]
+        },
+        "after_unknown": {
+          "crypto_key_backend": true,
+          "destroy_scheduled_duration": true,
+          "effective_labels": {},
+          "id": true,
+          "import_only": true,
+          "key_ring": true,
+          "labels": {},
+          "primary": true,
+          "terraform_labels": {},
+          "version_template": [
+            {}
+          ]
+        }
+      }
+    },
+    {
+      "address": "module.keys.google_kms_crypto_key.this[\"sql\"]",
+      "mode": "managed",
+      "type": "google_kms_crypto_key",
+      "name": "this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "effective_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "name": "sql",
+          "purpose": "ENCRYPT_DECRYPT",
+          "rotation_period": "7776000s",
+          "skip_initial_version_creation": null,
+          "terraform_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "goog-terraform-provisioned": "true",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          },
+          "timeouts": null,
+          "version_template": [
+            {
+              "algorithm": "GOOGLE_SYMMETRIC_ENCRYPTION",
+              "protection_level": "SOFTWARE"
+            }
+          ]
+        },
+        "after_unknown": {
+          "crypto_key_backend": true,
+          "destroy_scheduled_duration": true,
+          "effective_labels": {},
+          "id": true,
+          "import_only": true,
+          "key_ring": true,
+          "labels": {},
+          "primary": true,
+          "terraform_labels": {},
+          "version_template": [
+            {}
+          ]
+        }
+      }
+    },
+    {
+      "address": "module.keys.google_kms_key_ring.this",
+      "mode": "managed",
+      "type": "google_kms_key_ring",
+      "name": "this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "location": "europe-west4",
+          "name": "sbx-keyring-a1",
+          "project": "abf-dev-7f3a",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "id": true
+        }
+      }
+    },
+    {
+      "address": "module.obs.google_monitoring_alert_policy.egress[0]",
+      "mode": "managed",
+      "type": "google_monitoring_alert_policy",
+      "name": "egress",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "alert_strategy": [],
+          "combiner": "OR",
+          "conditions": [
+            {
+              "condition_absent": [],
+              "condition_matched_log": [],
+              "condition_monitoring_query_language": [],
+              "condition_prometheus_query_language": [],
+              "condition_sql": [],
+              "condition_threshold": [
+                {
+                  "aggregations": [
+                    {
+                      "alignment_period": "300s",
+                      "cross_series_reducer": null,
+                      "group_by_fields": null,
+                      "per_series_aligner": "ALIGN_RATE"
+                    }
+                  ],
+                  "comparison": "COMPARISON_GT",
+                  "denominator_aggregations": [],
+                  "denominator_filter": null,
+                  "duration": "300s",
+                  "evaluation_missing_data": null,
+                  "filter": "resource.type=\"gcs_bucket\" AND resource.label.bucket_name=\"abf-dev-7f3a-sbx-landing-a1\" AND metric.type=\"storage.googleapis.com/network/sent_bytes_count\"",
+                  "forecast_options": [],
+                  "threshold_value": 1073741824,
+                  "trigger": []
+                }
+              ],
+              "display_name": "egress above threshold"
+            }
+          ],
+          "display_name": "abf-dev-7f3a-sbx-landing-a1 - egress spike",
+          "documentation": [
+            {
+              "content": "Runbook: https://github.com/<org>/multi-tenant-config/blob/main/docs/runbooks/observability.md",
+              "links": [],
+              "mime_type": "text/markdown",
+              "subject": null
+            }
+          ],
+          "enabled": true,
+          "project": "abf-dev-7f3a",
+          "severity": null,
+          "timeouts": null,
+          "user_labels": {
+            "data_classification": "internal",
+            "environment": "dev",
+            "managed-by": "terraform",
+            "tenant": "sbx"
+          }
+        },
+        "after_unknown": {
+          "alert_strategy": [],
+          "conditions": [
+            {
+              "condition_absent": [],
+              "condition_matched_log": [],
+              "condition_monitoring_query_language": [],
+              "condition_prometheus_query_language": [],
+              "condition_sql": [],
+              "condition_threshold": [
+                {
+                  "aggregations": [
+                    {}
+                  ],
+                  "denominator_aggregations": [],
+                  "forecast_options": [],
+                  "trigger": []
+                }
+              ],
+              "name": true
+            }
+          ],
+          "creation_record": true,
+          "documentation": [
+            {
+              "links": []
+            }
+          ],
+          "id": true,
+          "name": true,
+          "notification_channels": true,
+          "user_labels": {}
+        }
+      }
+    },
+    {
+      "address": "module.obs.google_monitoring_dashboard.this",
+      "mode": "managed",
+      "type": "google_monitoring_dashboard",
+      "name": "this",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "after": {
+          "dashboard_json": "{\"displayName\":\"abf-dev-7f3a-sbx-landing-a1\",\"gridLayout\":{\"columns\":1,\"widgets\":[{\"title\":\"abf-dev-7f3a-sbx-landing-a1 — primary metric\",\"xyChart\":{\"dataSets\":[{\"timeSeriesQuery\":{\"timeSeriesFilter\":{\"aggregation\":{\"alignmentPeriod\":\"300s\",\"perSeriesAligner\":\"ALIGN_RATE\"},\"filter\":\"resource.type=\\\"gcs_bucket\\\" AND resource.label.bucket_name=\\\"abf-dev-7f3a-sbx-landing-a1\\\" AND metric.type=\\\"storage.googleapis.com/network/sent_bytes_count\\\"\"}}}]}}]}}",
+          "project": "abf-dev-7f3a",
+          "timeouts": null
+        },
+        "after_unknown": {
+          "id": true
+        }
+      }
+    }
+  ]
+}
