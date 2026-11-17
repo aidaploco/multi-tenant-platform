@@ -32,9 +32,9 @@ variable "log_filter" {
 }
 
 variable "egress_threshold_bytes" {
-  description = "Egress-spike alert threshold. Hardcoded-but-overridable default; tenants rarely change it."
+  description = "Egress-spike alert threshold in BYTES PER 5-MINUTE WINDOW (the alert sums the metric over a 300s alignment period). Hardcoded-but-overridable default; tenants rarely change it."
   type        = number
-  default     = 1073741824 # 1 GiB / alignment window
+  default     = 1073741824 # 1 GiB per 5-minute window (about 3.6 MB/s sustained)
 }
 
 variable "alert_duration" {
