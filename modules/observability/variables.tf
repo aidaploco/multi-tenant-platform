@@ -9,7 +9,7 @@ variable "display_name" {
 }
 
 variable "metric_filter" {
-  description = "Monitoring filter selecting the primary time series for this resource. Has a sensible default per the caller's resource type."
+  description = "Monitoring filter selecting the primary time series for this resource. Required: there is no default, because the right filter depends on the caller's resource type."
   type        = string
 }
 
@@ -52,7 +52,7 @@ variable "enable_egress_alert" {
 variable "runbook_url" {
   description = "Runbook link embedded in alert documentation. Policy requires every alert to carry one."
   type        = string
-  default     = "https://github.com/<org>/multi-tenant-config/blob/main/docs/runbooks/observability.md"
+  default     = "https://github.com/aidaploco/multi-tenant-config/blob/main/docs/runbooks/observability.md"
 }
 
 variable "labels" {

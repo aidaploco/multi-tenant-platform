@@ -14,7 +14,7 @@ the cluster's tenant-isolation policy applied and self-healing.
 
 ```hcl
 module "config_sync" {
-  source = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/config-sync?ref=v0.7.0"
+  source = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/config-sync?ref=v0.9.0"
 
   project_id   = "runtime-dev"
   region       = "europe-west4"
@@ -35,6 +35,7 @@ module "config_sync" {
 | `sync_repo` | string | — | Git repo Config Sync reads. |
 | `sync_branch` / `policy_dir` | string | `main` / `gitops` | What to reconcile. |
 | `secret_type` | string | `token` | `none` \| `token` \| `gcpserviceaccount`. |
+| `enable_policy_controller` | bool | `true` | Enable Policy Controller (Gatekeeper) to enforce the `gitops/` constraints (ADR-0015). |
 | `rotation_days` | number | `90` | Recorded on the git-token secret (ADR-0006). |
 | `labels` | map | — | Must include tenant/environment/data_classification. |
 

@@ -9,6 +9,6 @@ output "alert_policy_ids" {
 }
 
 output "log_sink_writer_identity" {
-  description = "Writer identity of the log sink (grant it access to the log bucket). Empty if no sink was created."
+  description = "Writer identity of the log sink (grant it access to the log bucket). Null if no sink was created."
   value       = try(google_logging_project_sink.this[0].writer_identity, null)
 }

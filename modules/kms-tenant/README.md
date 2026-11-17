@@ -13,7 +13,7 @@ The `key_ids` output feeds the `cmek_key_id` input of the data modules:
 
 ```hcl
 module "keys" {
-  source       = "git::https://github.com/<org>/multi-tenant-platform.git//modules/kms-tenant?ref=v1.0.0"
+  source       = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/kms-tenant?ref=v0.1.0"
   project_id   = "company-keys-prod"   # the keys project, NOT the tenant data project
   keyring_name = "abf-keyring"
   location     = "europe-west4"
@@ -21,7 +21,7 @@ module "keys" {
 }
 
 module "landing_bucket" {
-  source      = "...//modules/gcs?ref=v1.0.0"
+  source      = "...//modules/gcs?ref=v0.1.0"
   cmek_key_id = module.keys.key_ids["gcs"]
   # ...
 }

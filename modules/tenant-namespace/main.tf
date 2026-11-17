@@ -1,5 +1,6 @@
 # tenant-namespace: stamps one tenant's namespace on the shared runtime cluster with the full
-# isolation contract (ADR-0013, mirroring gitops/namespaces/tenant-template). This is the Terraform
+# isolation contract (ADR-0013, mirroring docs/runtime/tenant-namespace-contract in
+# multi-tenant-config, which has no gitops/namespaces tree). This is the Terraform
 # half of "the cluster is multi-tenant safe": default-deny networking, quotas, namespace RBAC, and
 # the Kubernetes SA that completes each agent-unit's Workload Identity bridge.
 
@@ -12,8 +13,9 @@ resource "kubernetes_namespace" "this" {
     name   = var.namespace
     labels = local.labels
     # The tenant's allowed unit KSAs, readable by the exact-KSA Gatekeeper constraint via
-    # referential data (ADR-0018). Tamper-proof from tenants: the namespaced `edit` role cannot
-    # update the Namespace object itself. Empty (no units) = the constraint admits no pods.
+    # referential data (ADR-0018). Tamper-proof from tenants: their namespaced roles (`view` and
+    # tenant-operators, below) cannot update the Namespace object itself. Empty (no units) = the
+    # constraint admits no pods.
     annotations = {
       "unit-ksas" = join(",", sort(keys(var.service_accounts)))
     }

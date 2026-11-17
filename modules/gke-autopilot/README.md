@@ -5,25 +5,28 @@ The shared runtime cluster (ADR-0009 / ADR-0001 D13): one regional **Autopilot**
 small team. Private nodes (egress via the shared-vpc NAT), control-plane locked to authorized
 networks, Workload Identity on.
 
-> **Layering:** this is the cluster. Per-tenant namespaces with default-deny `NetworkPolicy`,
-> quotas, and Policy Controller constraints are applied by **Config Sync** (milestone part 4), not
-> here. Do not run two tenants' workloads here until part 4.
+> **Layering:** this is the cluster. Per-tenant namespaces with default-deny `NetworkPolicy` and
+> quotas come from the [`tenant-namespace`](../tenant-namespace) module; Policy Controller
+> constraints are applied by **Config Sync** (see [`config-sync`](../config-sync)). None of that is
+> done here, so do not run two tenants' workloads on this cluster without it.
 
 ## Usage
 
 ```hcl
 module "cluster" {
-  source = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/gke-autopilot?ref=v0.5.0"
+  source = "git::https://github.com/aidaploco/multi-tenant-platform.git//modules/gke-autopilot?ref=v0.14.0"
 
-  project_id          = "runtime-dev"
-  region              = "europe-west4"
-  network             = module.vpc.network_id
-  subnetwork          = module.vpc.subnetwork_id
-  pods_range_name     = module.vpc.pods_range_name
-  services_range_name = module.vpc.services_range_name
-  master_ipv4_cidr    = "172.16.0.0/28"
-  deletion_protection = true
-  labels              = local.labels
+  project_id              = "runtime-dev"
+  region                  = "europe-west4"
+  network                 = module.vpc.network_id
+  subnetwork              = module.vpc.subnetwork_id
+  pods_range_name         = module.vpc.pods_range_name
+  services_range_name     = module.vpc.services_range_name
+  master_ipv4_cidr        = "172.16.0.0/28"
+  database_encryption_key = "projects/runtime-dev/locations/europe-west4/keyRings/runtime/cryptoKeys/gke-secrets"
+  boot_disk_kms_key       = "projects/runtime-dev/locations/europe-west4/keyRings/runtime/cryptoKeys/gke-boot-disk"
+  deletion_protection     = true
+  labels                  = local.labels
 }
 ```
 
