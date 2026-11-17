@@ -42,6 +42,8 @@ resource "google_gke_hub_feature_membership" "this" {
 
   configmanagement {
     config_sync {
+      # Must be explicit: the API rejects a git config without `enabled = true`.
+      enabled       = true
       source_format = "unstructured"
 
       git {
@@ -51,15 +53,43 @@ resource "google_gke_hub_feature_membership" "this" {
         secret_type = var.secret_type
       }
     }
+  }
+}
 
-    # Policy Controller (Gatekeeper) enforces the gitops constraints — e.g. no shared default SA in
-    # tenant namespaces (ADR-0015). Toggle off only if enforcing elsewhere.
-    dynamic "policy_controller" {
-      for_each = var.enable_policy_controller ? [1] : []
-      content {
-        enabled                    = true
-        template_library_installed = true
-        referential_rules_enabled  = true
+# Policy Controller (Gatekeeper) enforces the gitops constraints — e.g. no shared default SA in
+# tenant namespaces (ADR-0015). Toggle off only if enforcing elsewhere.
+#
+# It is its OWN Fleet feature, not a block inside `configmanagement`: the ConfigManagement API
+# rejects `policy_controller` for current Policy Controller versions ("please use the
+# PolicyController API directly"). Needs anthospolicycontroller.googleapis.com enabled.
+resource "google_gke_hub_feature" "policycontroller" {
+  count = var.enable_policy_controller ? 1 : 0
+
+  name     = "policycontroller"
+  project  = var.project_id
+  location = "global"
+}
+
+resource "google_gke_hub_feature_membership" "policycontroller" {
+  count = var.enable_policy_controller ? 1 : 0
+
+  project             = var.project_id
+  location            = "global"
+  feature             = google_gke_hub_feature.policycontroller[0].name
+  membership          = google_gke_hub_membership.this.membership_id
+  membership_location = var.region
+
+  policycontroller {
+    policy_controller_hub_config {
+      install_spec              = "INSTALL_SPEC_ENABLED"
+      referential_rules_enabled = true
+      # The API defaults this to 60; stating it keeps plans free of a perpetual diff.
+      audit_interval_seconds = 60
+
+      policy_content {
+        template_library {
+          installation = "ALL"
+        }
       }
     }
   }
